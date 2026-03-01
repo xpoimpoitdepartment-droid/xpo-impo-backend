@@ -17,10 +17,16 @@ const routes_1 = __importDefault(require("./routes"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     origin: [
-        "https://milko-home-lime.vercel.app",
+        "https://milko-home-one.vercel.app",
+        "https://www.milko-home-one.vercel.app",
+        "https://milko-admin-panel-blond.vercel.app",
+        "https://www.milko-admin-panel-blond.vercel.app",
         "http://localhost:3000",
+        "http://localhost:3001",
         "https://milkomart.com",
+        "https://www.milkomart.com",
         "https://admin.milkomart.com",
+        "https://www.admin.milkomart.com",
     ],
     credentials: true
 }));

@@ -14,10 +14,17 @@ const app: Application = express();
 
 app.use(cors({
   origin: [
-    "https://milko-home-lime.vercel.app",
+    "https://milko-home-one.vercel.app",
+    "https://www.milko-home-one.vercel.app",
+    "https://milko-admin-panel-blond.vercel.app",
+    "https://www.milko-admin-panel-blond.vercel.app",
     "http://localhost:3000",
+    "http://localhost:3001",
     "https://milkomart.com",
+    "https://www.milkomart.com",
     "https://admin.milkomart.com",
+    "https://www.admin.milkomart.com",
+   
   ],
   credentials: true
 }));
