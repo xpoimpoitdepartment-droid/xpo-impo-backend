@@ -42,8 +42,26 @@ const loginUserUsingProvider = zod_1.default.object({
         .min(1, "Email is required to create a user!")
         .max(50, "Email must be less than 50 characters!"),
 });
+// OTP and Password Reset Validators
+const otpSchema = zod_1.default.object({
+    email: zod_1.default.email(),
+    otp: zod_1.default.string().length(6),
+});
+//OTP Resend Validators
+const resendOtpSchema = zod_1.default.object({
+    email: zod_1.default.email(),
+});
+//Reset Password Validators
+const resetPasswordSchema = zod_1.default.object({
+    email: zod_1.default.email(),
+    otp: zod_1.default.string().length(6),
+    newPassword: zod_1.default.string().min(8),
+});
 exports.AuthValidations = {
     registerUser,
     loginUser,
     loginUserUsingProvider,
+    otpSchema,
+    resendOtpSchema,
+    resetPasswordSchema,
 };

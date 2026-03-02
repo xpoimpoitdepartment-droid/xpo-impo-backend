@@ -14,22 +14,31 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthRoutes = void 0;
 const express_1 = __importDefault(require("express"));
-const auth_controller_1 = require("./auth.controller");
-const validateRequest_1 = __importDefault(require("../../middlewares/validateRequest"));
-const auth_validations_1 = require("./auth.validations");
 const passport_1 = __importDefault(require("passport"));
 const checkAuth_1 = require("../../middlewares/checkAuth");
+const validateRequest_1 = __importDefault(require("../../middlewares/validateRequest"));
 const user_const_1 = require("../user/user.const");
+const auth_controller_1 = require("./auth.controller");
+const auth_validations_1 = require("./auth.validations");
 const router = express_1.default.Router();
 // Individual routes
 router.post("/register", (0, validateRequest_1.default)(auth_validations_1.AuthValidations.registerUser), auth_controller_1.AuthController.registerUser);
 router.post("/login", (0, validateRequest_1.default)(auth_validations_1.AuthValidations.loginUser), auth_controller_1.AuthController.loginUser);
 router.post("/logout/:id", auth_controller_1.AuthController.logOutUser);
 router.post("/login/provider", (0, validateRequest_1.default)(auth_validations_1.AuthValidations.loginUserUsingProvider), auth_controller_1.AuthController.loginUserUsingProvider);
-router.get('/google', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const redirect = req.query.redirect || '';
-    passport_1.default.authenticate("google", { scope: ["profile", "email"], state: redirect })(req, res, next);
+// 🔹 Resend OTP (already implemented earlier)
+router.post("/verify-email", auth_controller_1.AuthController.verifyEmail);
+router.post("/resend-otp", auth_controller_1.AuthController.resendOtp);
+router.post("/forgot-password", auth_controller_1.AuthController.forgotPassword);
+router.post("/reset-password-otp", auth_controller_1.AuthController.resetPasswordWithOtp);
+router.post("/reset-password", auth_controller_1.AuthController.resetPassword);
+router.get("/google", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const redirect = req.query.redirect || "";
+    passport_1.default.authenticate("google", {
+        scope: ["profile", "email"],
+        state: redirect,
+    })(req, res, next);
 }));
 router.get("/google/callback", passport_1.default.authenticate("google", { failureRedirect: "/login" }), auth_controller_1.AuthController.googleCallbackController);
-router.get('/me', (0, checkAuth_1.checkAuth)(...Object.values(user_const_1.userRoles)), auth_controller_1.AuthController.gatMe);
+router.get("/me", (0, checkAuth_1.checkAuth)(...Object.values(user_const_1.userRoles)), auth_controller_1.AuthController.gatMe);
 exports.AuthRoutes = router;

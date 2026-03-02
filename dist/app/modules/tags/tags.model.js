@@ -25,7 +25,7 @@ const tagSchema = new mongoose_1.Schema({
     icon: iconSchema,
     image: {
         type: String,
-        required: [true, "Image url is required!"],
+        // required: [true, "Image url is required!"],
     },
 }, {
     timestamps: true,

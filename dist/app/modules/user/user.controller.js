@@ -13,17 +13,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserControllers = void 0;
+const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
-const http_status_1 = __importDefault(require("http-status"));
 const user_service_1 = require("./user.service");
 const getAllUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_service_1.UserServices.getAllUserFromDB();
+    const result = yield user_service_1.UserServices.getAllUserFromDB(req.query);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
         message: "All user data retrieve successfully!",
-        data: result,
+        meta: result.meta,
+        data: result.usersWithOrders,
     });
 }));
 const getSingleUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -75,6 +76,16 @@ const updateUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
         data: result,
     });
 }));
+const deleteUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    const result = yield user_service_1.UserServices.delteUserFromDB(id);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "User deleted successfully!",
+        data: result,
+    });
+}));
 exports.UserControllers = {
     getSingleUser,
     getAllUser,
@@ -82,4 +93,5 @@ exports.UserControllers = {
     getSuperAdmin,
     getAllVendorUser,
     updateUser,
+    deleteUser,
 };

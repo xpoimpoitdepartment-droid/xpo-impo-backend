@@ -144,6 +144,7 @@ const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const setCookie_1 = require("../../utils/setCookie");
 const auth_service_1 = require("./auth.service");
 const registerUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const userInfo = Object.assign(Object.assign({}, req.body), { auths: {
             provider: "email",
             providerId: req.body.email,
@@ -152,9 +153,9 @@ const registerUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.CREATED,
         success: true,
-        message: result.status === "pending"
+        message: ((_a = result.user) === null || _a === void 0 ? void 0 : _a.status) === "pending"
             ? "Registration successful! Please wait for admin approval."
-            : "User has been registered successfully!",
+            : "User has been registered successfully! OTP has been sent to your email for verification.",
         data: result,
     });
 }));
@@ -179,11 +180,11 @@ const loginUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void
             data: null,
         });
     }
-    if (result.status === "blocked") {
+    if (result.status === "blocked" || result.isEmailVerified === false) {
         return (0, sendResponse_1.default)(res, {
             success: false,
             statusCode: http_status_1.default.FORBIDDEN,
-            message: "Your account has been blocked. Please contact support or admin.",
+            message: "Your account has been blocked or email not verified. Please contact support or admin.",
             data: null,
         });
     }
@@ -283,6 +284,16 @@ const googleCallbackController = (0, catchAsync_1.default)((req, res) => __await
         }
     }
 }));
+const verifyEmail = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, otp } = req.body;
+    const result = yield auth_service_1.AuthServices.verifyEmailOnDB(email, otp);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: "Email verified successfully!",
+        data: result,
+    });
+}));
 const gatMe = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const decodedUser = req.user;
     const me = yield auth_service_1.AuthServices.getMe(decodedUser);
@@ -293,6 +304,68 @@ const gatMe = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, 
         data: me,
     });
 }));
+/**
+ * 🔹 Resend OTP
+ */
+const resendOtp = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.body;
+    const result = yield auth_service_1.AuthServices.resendOtp(email);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        message: "OTP resent successfully!",
+        data: result,
+    });
+}));
+/**
+ * 🔹 Forgot Password (Send OTP)
+ */
+const forgotPassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.body;
+    const result = yield auth_service_1.AuthServices.forgotPassword(email);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        message: "OTP sent successfully to your valid email!",
+        data: result,
+    });
+}));
+/**
+ * 🔹 Reset Password using OTP
+ */
+const resetPasswordWithOtp = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, otp, newPassword } = req.body;
+    const result = yield auth_service_1.AuthServices.resetPasswordWithOtp(email, otp, newPassword);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        message: "Password reset successfully!",
+        data: result,
+    });
+}));
+/**
+ * 🔹 Reset Password (logged in)
+ */
+const resetPassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+    const { newPassword } = req.body;
+    if (!userId) {
+        return (0, sendResponse_1.default)(res, {
+            success: false,
+            statusCode: http_status_codes_1.StatusCodes.UNAUTHORIZED,
+            message: "Unauthorized request!",
+            data: null,
+        });
+    }
+    const result = yield auth_service_1.AuthServices.resetPasswordLoggedIn(userId, newPassword);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        message: result.message,
+        data: result,
+    });
+}));
 exports.AuthController = {
     registerUser,
     loginUser,
@@ -300,4 +373,9 @@ exports.AuthController = {
     loginUserUsingProvider,
     googleCallbackController,
     gatMe,
+    resendOtp,
+    forgotPassword,
+    resetPasswordWithOtp,
+    resetPassword,
+    verifyEmail,
 };

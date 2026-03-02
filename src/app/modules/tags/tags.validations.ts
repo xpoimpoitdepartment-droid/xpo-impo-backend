@@ -19,12 +19,7 @@ export const createTagZodSchema = z.object({
         : "Not a string!",
   }),
   icon: iconSchema,
-  image: z
-    .string({
-      error: (issue) =>
-        issue.input === undefined ? "Image URL is required!" : "Not a string!",
-    })
-    .url("Invalid image URL!"),
+  image: z.string().optional(),
 });
 
 export const updateiconSchema = z.object({

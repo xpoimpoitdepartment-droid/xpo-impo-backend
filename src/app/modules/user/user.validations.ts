@@ -6,6 +6,8 @@ export const createUserZodSchema = z.object({
 
   email: z.string().email("Invalid email format"),
 
+  isEmailVerified: z.boolean().optional(),
+
   password: z.string().min(6, "Password must be at least 6 characters long"),
 
   role: z.enum([...userRoles] as [string, ...string[]]).optional(),

@@ -10,6 +10,7 @@ const order_controller_1 = require("./order.controller");
 const order_validation_1 = require("./order.validation");
 const router = express_1.default.Router();
 router.get("/", order_controller_1.orderControllers.getAllOrder);
+router.get("/status-counts", order_controller_1.orderControllers.getOrderStatusCounts);
 router.get("/summary", order_controller_1.orderControllers.getOrderSummary);
 router.get("/my-order/:id", order_controller_1.orderControllers.getMyOrders);
 router.get("/:id", order_controller_1.orderControllers.getSingleOrder);

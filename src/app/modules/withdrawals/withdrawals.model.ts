@@ -60,8 +60,12 @@ const withdrawalSchema = new Schema<TWithdrawals>(
     },
     paymentMethod: {
       type: String,
-      enum: ["cash-on"],
+      enum: ["cash-on", "bank-transfer", "bKash", "nagad", "rocket", "upay"],
       required: [true, "Payment method is required!"],
+    },
+    paymentAccountNumber: {
+      type: String,
+      required: [true, "Payment number is required!"],
     },
     status: {
       type: String,
@@ -71,12 +75,12 @@ const withdrawalSchema = new Schema<TWithdrawals>(
     },
     description: {
       type: String,
-      required: [true, "Description is required!"],
+      // required: [true, "Description is required!"],
       trim: true,
     },
     note: {
       type: String,
-      required: [true, "Note is required!"],
+      // required: [true, "Note is required!"],
       trim: true,
     },
   },

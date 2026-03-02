@@ -123,6 +123,9 @@ const http_status_codes_1 = require("http-status-codes");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../../config"));
 const handleAppError_1 = __importDefault(require("../../errors/handleAppError"));
+const email_service_1 = require("../../utils/email.service");
+const generate_otp_1 = require("../../utils/generate.otp");
+const otp_service_1 = require("../otp/otp.service");
 const user_model_1 = require("../user/user.model");
 /**
  * Register user in the database
@@ -130,15 +133,63 @@ const user_model_1 = require("../user/user.model");
  * - 'active' for customer, admin, super-admin
  * - 'pending' for others
  */
+// const registerUserOnDB = async (payload: TAuth) => {
+//   // Determine user status based on role
+//   const activeRoles = ["customer", "admin", "super-admin"];
+//   const role = payload.role || "customer";
+//   const status = activeRoles.includes(role) ? "active" : "pending";
+//   const userData = {
+//     ...payload,
+//     role,
+//     status,
+//   };
+//   const result = await UserModel.create(userData);
+//   return result;
+// };
 const registerUserOnDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    // Determine user status based on role
+    const email = payload.email.toLowerCase();
+    // ✅ Check if user already exists
+    const existing = yield user_model_1.UserModel.findOne({ email });
+    if (existing) {
+        throw new Error("Email already registered");
+    }
+    // ✅ Determine role & status
     const activeRoles = ["customer", "admin", "super-admin"];
     const role = payload.role || "customer";
     const status = activeRoles.includes(role) ? "active" : "pending";
-    const userData = Object.assign(Object.assign({}, payload), { role,
-        status });
-    const result = yield user_model_1.UserModel.create(userData);
-    return result;
+    // ✅ Hash password
+    if (!(payload === null || payload === void 0 ? void 0 : payload.password)) {
+        throw new handleAppError_1.default(http_status_1.default.BAD_REQUEST, "Password is required");
+    }
+    // const hashedPassword = await bcrypt.hash(payload.password, 10);
+    // ✅ Create user with default isEmailVerified = false
+    const userData = Object.assign(Object.assign({}, payload), { email,
+        // password: hashedPassword,
+        role,
+        status, isEmailVerified: false });
+    const user = yield user_model_1.UserModel.create(userData);
+    // ✅ Generate and store OTP
+    const otp = (0, generate_otp_1.generateOTP)();
+    yield (0, otp_service_1.storeOTP)(email, "email_verification", otp, Number(process.env.OTP_TTL_SECONDS || 300));
+    // ✅ Send verification email
+    yield (0, email_service_1.sendEmailVerification)(email, otp);
+    // ✅ Return user + info
+    return {
+        user,
+        // otp,
+    };
+});
+const verifyEmailOnDB = (email, otp) => __awaiter(void 0, void 0, void 0, function* () {
+    // ✅ Verify OTP from stored records
+    const ok = yield (0, otp_service_1.verifyOTP)(email, "email_verification", otp);
+    if (!ok) {
+        throw new Error("Invalid or expired OTP");
+    }
+    // ✅ Update user's email verification status
+    yield user_model_1.UserModel.updateOne({ email: email.toLowerCase() }, { $set: { isEmailVerified: true } });
+    return {
+        message: "Email has been verified successfully.",
+    };
 });
 /**
  * Login a user using email/password
@@ -157,6 +208,10 @@ const loginUserFromDB = (payload) => __awaiter(void 0, void 0, void 0, function*
         throw new handleAppError_1.default(http_status_1.default.BAD_REQUEST, "Password is required");
     }
     const isPasswordMatched = yield bcrypt_1.default.compare(payload.password, isUserExists.password);
+    const isEmailVerified = isUserExists.isEmailVerified;
+    if (!isEmailVerified) {
+        throw new handleAppError_1.default(http_status_1.default.UNAUTHORIZED, "Email not verified. Please verify your email before logging in.");
+    }
     if (!isPasswordMatched) {
         throw new handleAppError_1.default(http_status_1.default.UNAUTHORIZED, "Wrong Credentials!");
     }
@@ -227,6 +282,47 @@ const logoutUserFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () 
     return {};
 });
 /**
+ * 🔹 Resend OTP for email verification
+ */
+const resendOtp = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    const otp = (0, generate_otp_1.generateOTP)();
+    yield (0, otp_service_1.storeOTP)(email, "email_verification", otp, Number(process.env.OTP_TTL_SECONDS || 300));
+    yield (0, email_service_1.sendEmailVerification)(email, otp);
+    return { message: "OTP resent successfully!" };
+});
+/**
+ * 🔹 Forgot Password - generate OTP for password reset
+ */
+const forgotPassword = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.UserModel.findOne({ email: email.toLowerCase() });
+    if (!user) {
+        return { message: "If account exists, OTP sent" }; // Prevent user enumeration
+    }
+    const otp = (0, generate_otp_1.generateOTP)();
+    yield (0, otp_service_1.storeOTP)(email, "password_reset", otp, Number(process.env.OTP_TTL_SECONDS || 300));
+    yield (0, email_service_1.sendPasswordResetOTP)(email, otp);
+    return { message: "OTP sent successfully!" };
+});
+/**
+ * 🔹 Reset password using OTP
+ */
+const resetPasswordWithOtp = (email, otp, newPassword) => __awaiter(void 0, void 0, void 0, function* () {
+    const ok = yield (0, otp_service_1.verifyOTP)(email, "password_reset", otp);
+    if (!ok)
+        throw new handleAppError_1.default(http_status_1.default.BAD_REQUEST, "Invalid or expired OTP");
+    const hash = yield bcrypt_1.default.hash(newPassword, 10);
+    yield user_model_1.UserModel.updateOne({ email: email.toLowerCase() }, { password: hash, tokenVersion: Date.now() });
+    return { message: "Password updated successfully!" };
+});
+/**
+ * 🔹 Reset password when logged in (no OTP)
+ */
+const resetPasswordLoggedIn = (userId, newPassword) => __awaiter(void 0, void 0, void 0, function* () {
+    const hash = yield bcrypt_1.default.hash(newPassword, 10);
+    yield user_model_1.UserModel.updateOne({ _id: userId }, { password: hash, tokenVersion: Date.now() });
+    return { message: "Password updated successfully!" };
+});
+/**
  * Get current user info using decoded JWT
  */
 const getMe = (decodedUser) => __awaiter(void 0, void 0, void 0, function* () {
@@ -242,4 +338,9 @@ exports.AuthServices = {
     logoutUserFromDB,
     loginUserUsingProviderFromDB,
     getMe,
+    resendOtp,
+    forgotPassword,
+    resetPasswordWithOtp,
+    resetPasswordLoggedIn,
+    verifyEmailOnDB,
 };

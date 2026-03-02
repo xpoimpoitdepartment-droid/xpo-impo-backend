@@ -169,9 +169,9 @@ const registerUser = catchAsync(async (req, res) => {
     statusCode: httpStatus.CREATED,
     success: true,
     message:
-      result.status === "pending"
+      (result.user as TUser)?.status === "pending"
         ? "Registration successful! Please wait for admin approval."
-        : "User has been registered successfully!",
+        : "User has been registered successfully! OTP has been sent to your email for verification.",
     data: result,
   });
 });
@@ -201,12 +201,12 @@ const loginUser = catchAsync(async (req, res) => {
     });
   }
 
-  if (result.status === "blocked") {
+  if (result.status === "blocked" || result.isEmailVerified === false) {
     return sendResponse(res, {
       success: false,
       statusCode: httpStatus.FORBIDDEN,
       message:
-        "Your account has been blocked. Please contact support or admin.",
+        "Your account has been blocked or email not verified. Please contact support or admin.",
       data: null,
     });
   }
@@ -324,6 +324,19 @@ const googleCallbackController = catchAsync(async (req, res) => {
   }
 });
 
+const verifyEmail = catchAsync(async (req, res) => {
+  const { email, otp } = req.body;
+
+  const result = await AuthServices.verifyEmailOnDB(email, otp);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Email verified successfully!",
+    data: result,
+  });
+});
+
 const gatMe = catchAsync(async (req, res) => {
   const decodedUser = req.user;
   const me = await AuthServices.getMe(decodedUser as JwtPayload);
@@ -336,6 +349,81 @@ const gatMe = catchAsync(async (req, res) => {
   });
 });
 
+/**
+ * 🔹 Resend OTP
+ */
+const resendOtp = catchAsync(async (req, res) => {
+  const { email } = req.body;
+  const result = await AuthServices.resendOtp(email);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "OTP resent successfully!",
+    data: result,
+  });
+});
+
+/**
+ * 🔹 Forgot Password (Send OTP)
+ */
+const forgotPassword = catchAsync(async (req, res) => {
+  const { email } = req.body;
+  const result = await AuthServices.forgotPassword(email);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "OTP sent successfully to your valid email!",
+    data: result,
+  });
+});
+
+/**
+ * 🔹 Reset Password using OTP
+ */
+const resetPasswordWithOtp = catchAsync(async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  const result = await AuthServices.resetPasswordWithOtp(
+    email,
+    otp,
+    newPassword
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Password reset successfully!",
+    data: result,
+  });
+});
+
+/**
+ * 🔹 Reset Password (logged in)
+ */
+const resetPassword = catchAsync(async (req, res) => {
+  const userId = (req.user as TUser)?._id;
+  const { newPassword } = req.body;
+
+  if (!userId) {
+    return sendResponse(res, {
+      success: false,
+      statusCode: StatusCodes.UNAUTHORIZED,
+      message: "Unauthorized request!",
+      data: null,
+    });
+  }
+
+  const result = await AuthServices.resetPasswordLoggedIn(userId, newPassword);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: result.message,
+    data: result,
+  });
+});
+
 export const AuthController = {
   registerUser,
   loginUser,
@@ -343,4 +431,9 @@ export const AuthController = {
   loginUserUsingProvider,
   googleCallbackController,
   gatMe,
+  resendOtp,
+  forgotPassword,
+  resetPasswordWithOtp,
+  resetPassword,
+  verifyEmail,
 };

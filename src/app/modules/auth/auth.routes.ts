@@ -1,10 +1,10 @@
 import express, { NextFunction, Request, Response } from "express";
-import { AuthController } from "./auth.controller";
-import validateRequest from "../../middlewares/validateRequest";
-import { AuthValidations } from "./auth.validations";
 import passport from "passport";
 import { checkAuth } from "../../middlewares/checkAuth";
+import validateRequest from "../../middlewares/validateRequest";
 import { userRoles } from "../user/user.const";
+import { AuthController } from "./auth.controller";
+import { AuthValidations } from "./auth.validations";
 
 const router = express.Router();
 
@@ -29,17 +29,29 @@ router.post(
   validateRequest(AuthValidations.loginUserUsingProvider),
   AuthController.loginUserUsingProvider
 );
+// 🔹 Resend OTP (already implemented earlier)
+router.post("/verify-email", AuthController.verifyEmail);
+router.post("/resend-otp", AuthController.resendOtp);
+router.post("/forgot-password", AuthController.forgotPassword);
+router.post("/reset-password-otp", AuthController.resetPasswordWithOtp);
+router.post("/reset-password", AuthController.resetPassword);
 
+router.get(
+  "/google",
+  async (req: Request, res: Response, next: NextFunction) => {
+    const redirect = req.query.redirect || "";
+    passport.authenticate("google", {
+      scope: ["profile", "email"],
+      state: redirect as string,
+    })(req, res, next);
+  }
+);
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  AuthController.googleCallbackController
+);
 
-
-router.get('/google', async (req: Request, res: Response, next: NextFunction) => {
-  const redirect = req.query.redirect || ''
-  passport.authenticate("google", {scope: ["profile","email"],state: redirect as string })(req, res,next)
-})
-router.get("/google/callback", passport.authenticate("google", { failureRedirect: "/login" }), AuthController.googleCallbackController)
-
-
-
-router.get('/me', checkAuth(...Object.values(userRoles)), AuthController.gatMe);
+router.get("/me", checkAuth(...Object.values(userRoles)), AuthController.gatMe);
 
 export const AuthRoutes = router;

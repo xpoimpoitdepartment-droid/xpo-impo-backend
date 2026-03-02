@@ -19,3 +19,11 @@ export const userRole = {
   "super-admin": "super-admin",
   vendor: "vendor",
 } as const;
+
+export const UserSearchableFields = [
+  "name.firstName",
+  "name.lastName",
+  "email",
+  "contactNo",
+  "role",
+];

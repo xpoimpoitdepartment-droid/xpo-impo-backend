@@ -6,6 +6,7 @@ import { createOrderZodSchema } from "./order.validation";
 const router = express.Router();
 
 router.get("/", orderControllers.getAllOrder);
+router.get("/status-counts", orderControllers.getOrderStatusCounts);
 router.get("/summary", orderControllers.getOrderSummary);
 
 router.get("/my-order/:id", orderControllers.getMyOrders);

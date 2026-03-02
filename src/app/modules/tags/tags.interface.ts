@@ -9,6 +9,6 @@ export type TTag = {
   type: string;
   details: string;
   icon?: TIcon;
-  image: string;
+  image?: string;
   deletedImage?: string;
 };

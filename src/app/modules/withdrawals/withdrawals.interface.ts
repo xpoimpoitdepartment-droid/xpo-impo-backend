@@ -16,8 +16,15 @@ type TStatus = "approved" | "on-hold" | "processing" | "pending" | "rejected";
 export type TWithdrawals = {
   user: Types.ObjectId; // SR or user who requests withdrawal
   amount: number;
-  paymentMethod: "cash-on";
+  paymentMethod:
+    | "cash-on"
+    | "bank-transfer"
+    | "bKash"
+    | "nagad"
+    | "rocket"
+    | "upay";
+  paymentAccountNumber: string;
   status: TStatus;
-  description: string;
-  note: string;
+  description?: string;
+  note?: string;
 };

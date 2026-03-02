@@ -28,6 +28,11 @@ const userSchema = new Schema<TUser>(
       unique: [true, "User with this email already exists!"],
       lowercase: true,
     },
+    isEmailVerified: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
     password: {
       type: String,
       minlength: [6, "Password must be at least 6 characters long!"],

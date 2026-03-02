@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.userRole = exports.userStatus = exports.possibleGenders = exports.userRoles = void 0;
+exports.UserSearchableFields = exports.userRole = exports.userStatus = exports.possibleGenders = exports.userRoles = void 0;
 exports.userRoles = [
     "customer",
     "vendor",
@@ -19,3 +19,10 @@ exports.userRole = {
     "super-admin": "super-admin",
     vendor: "vendor",
 };
+exports.UserSearchableFields = [
+    "name.firstName",
+    "name.lastName",
+    "email",
+    "contactNo",
+    "role",
+];

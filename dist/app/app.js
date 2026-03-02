@@ -17,16 +17,15 @@ const routes_1 = __importDefault(require("./routes"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     origin: [
-        "https://milko-home-one.vercel.app",
-        "https://www.milko-home-one.vercel.app",
-        "https://milko-admin-panel-blond.vercel.app",
-        "https://www.milko-admin-panel-blond.vercel.app",
+        "https://milko-home-lime.vercel.app",
         "http://localhost:3000",
         "http://localhost:3001",
         "https://milkomart.com",
         "https://www.milkomart.com",
         "https://admin.milkomart.com",
         "https://www.admin.milkomart.com",
+        "https://milko-admin-panel-blond.vercel.app",
+        "https://milko-home-one.vercel.app",
     ],
     credentials: true
 }));
@@ -43,19 +42,6 @@ app.use((0, cookie_parser_1.default)());
 app.set("trust proxy", 1);
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, morgan_1.default)("dev"));
-app.use((0, cors_1.default)({
-    origin: [
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "https://milko-home.vercel.app",
-        "https://milko-admin-panel.vercel.app",
-        "https://milkomart.com",
-        "https://admin.milkomart.com",
-        "https://dressen-home.vercel.app",
-        "https://dressen-admin-panel.vercel.app",
-    ],
-    credentials: true,
-}));
 //app routes
 app.use("/api/v1", routes_1.default);
 //root route

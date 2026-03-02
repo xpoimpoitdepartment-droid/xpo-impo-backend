@@ -6,6 +6,7 @@ const user_const_1 = require("./user.const");
 exports.createUserZodSchema = zod_1.z.object({
     name: zod_1.z.string().min(1, "Name is required"),
     email: zod_1.z.string().email("Invalid email format"),
+    isEmailVerified: zod_1.z.boolean().optional(),
     password: zod_1.z.string().min(6, "Password must be at least 6 characters long"),
     role: zod_1.z.enum([...user_const_1.userRoles]).optional(),
     image: zod_1.z.string().optional(),
