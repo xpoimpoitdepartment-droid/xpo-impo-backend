@@ -201,12 +201,12 @@ const loginUser = catchAsync(async (req, res) => {
     });
   }
 
-  if (result.status === "blocked" || result.isEmailVerified === false) {
+  if (result.status === "blocked") {
     return sendResponse(res, {
       success: false,
       statusCode: httpStatus.FORBIDDEN,
       message:
-        "Your account has been blocked or email not verified. Please contact support or admin.",
+        "Your account has been blocked. Please contact support or admin.",
       data: null,
     });
   }

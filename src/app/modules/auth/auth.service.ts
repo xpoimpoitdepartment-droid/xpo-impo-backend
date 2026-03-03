@@ -261,15 +261,6 @@ const loginUserFromDB = async (payload: TAuth) => {
     isUserExists.password
   );
 
-  const isEmailVerified = isUserExists.isEmailVerified;
-
-  if (!isEmailVerified) {
-    throw new AppError(
-      httpStatus.UNAUTHORIZED,
-      "Email not verified. Please verify your email before logging in."
-    );
-  }
-
   if (!isPasswordMatched) {
     throw new AppError(httpStatus.UNAUTHORIZED, "Wrong Credentials!");
   }

@@ -208,10 +208,6 @@ const loginUserFromDB = (payload) => __awaiter(void 0, void 0, void 0, function*
         throw new handleAppError_1.default(http_status_1.default.BAD_REQUEST, "Password is required");
     }
     const isPasswordMatched = yield bcrypt_1.default.compare(payload.password, isUserExists.password);
-    const isEmailVerified = isUserExists.isEmailVerified;
-    if (!isEmailVerified) {
-        throw new handleAppError_1.default(http_status_1.default.UNAUTHORIZED, "Email not verified. Please verify your email before logging in.");
-    }
     if (!isPasswordMatched) {
         throw new handleAppError_1.default(http_status_1.default.UNAUTHORIZED, "Wrong Credentials!");
     }

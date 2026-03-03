@@ -180,11 +180,11 @@ const loginUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void
             data: null,
         });
     }
-    if (result.status === "blocked" || result.isEmailVerified === false) {
+    if (result.status === "blocked") {
         return (0, sendResponse_1.default)(res, {
             success: false,
             statusCode: http_status_1.default.FORBIDDEN,
-            message: "Your account has been blocked or email not verified. Please contact support or admin.",
+            message: "Your account has been blocked. Please contact support or admin.",
             data: null,
         });
     }
