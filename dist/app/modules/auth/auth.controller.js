@@ -200,6 +200,15 @@ const loginUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void
 const loginUserUsingProvider = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userInfo = req === null || req === void 0 ? void 0 : req.body;
     const result = yield auth_service_1.AuthServices.loginUserUsingProviderFromDB(userInfo);
+    // If no result returned, respond with unauthorized
+    if (!result || !result.user) {
+        return (0, sendResponse_1.default)(res, {
+            success: false,
+            statusCode: http_status_1.default.UNAUTHORIZED,
+            message: "Invalid credentials or user not found.",
+            data: null,
+        });
+    }
     // Handle pending or blocked users with friendly messages
     if (result.user.status === "pending") {
         return (0, sendResponse_1.default)(res, {

@@ -226,6 +226,16 @@ const loginUserUsingProvider = catchAsync(async (req, res) => {
   const userInfo = req?.body;
   const result = await AuthServices.loginUserUsingProviderFromDB(userInfo);
 
+  // If no result returned, respond with unauthorized
+  if (!result || !result.user) {
+    return sendResponse(res, {
+      success: false,
+      statusCode: httpStatus.UNAUTHORIZED,
+      message: "Invalid credentials or user not found.",
+      data: null,
+    });
+  }
+
   // Handle pending or blocked users with friendly messages
   if (result.user.status === "pending") {
     return sendResponse(res, {
