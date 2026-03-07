@@ -25,6 +25,9 @@ const checkAuth = (...authRole) => (req, res, next) => __awaiter(void 0, void 0,
         if ((_a = req === null || req === void 0 ? void 0 : req.body) === null || _a === void 0 ? void 0 : _a.token) {
             accessToken = req.body.token;
         }
+        if (!accessToken && req.headers.authorization) {
+            accessToken = req.headers.authorization.replace('Bearer ', '');
+        }
         if (!accessToken) {
             throw new handleAppError_1.default(http_status_codes_1.StatusCodes.FORBIDDEN, 'No Token Received');
         }

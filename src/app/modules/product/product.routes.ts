@@ -2,12 +2,15 @@ import express from "express";
 import { multerUpload } from "../../config/multer.config";
 import validateRequest from "../../middlewares/validateRequest";
 import { productControllers } from "./product.controller";
+import { exportCatalogCSV } from "./product.catalog.controller";
 import {
   createProductZodSchema,
   updateProductZodSchema,
 } from "./product.validations";
 
 const router = express.Router();
+
+router.get("/export/catalog-csv", exportCatalogCSV);
 
 router.get("/", productControllers.getAllProduct);
 

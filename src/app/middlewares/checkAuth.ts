@@ -12,6 +12,9 @@ export const checkAuth = (...authRole: string[]) => async (req: Request, res: Re
       if (req?.body?.token) {
         accessToken = req.body.token;
       }
+      if (!accessToken && req.headers.authorization) {
+        accessToken = req.headers.authorization.replace('Bearer ', '');
+      }
       if (!accessToken) {
         throw new AppError(StatusCodes.FORBIDDEN, 'No Token Received');
       }
