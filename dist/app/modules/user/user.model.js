@@ -24,6 +24,15 @@ const authProviderSchema = new mongoose_1.Schema({
     _id: false,
     versionKey: false,
 });
+const addressSchema = new mongoose_1.Schema({
+    type: { type: String, enum: ["billing", "shipping"] },
+    title: { type: String },
+    country: { type: String },
+    city: { type: String },
+    state: { type: String },
+    zipCode: { type: String },
+    street: { type: String },
+}, { _id: false });
 //mongoose schema for user
 const userSchema = new mongoose_1.Schema({
     name: {
@@ -65,6 +74,10 @@ const userSchema = new mongoose_1.Schema({
     bio: {
         type: String,
         default: "",
+    },
+    address: {
+        type: addressSchema,
+        default: null,
     },
     status: {
         type: String,

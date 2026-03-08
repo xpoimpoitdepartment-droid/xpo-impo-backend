@@ -18,6 +18,16 @@ export interface IAuthProvider {
   provider: string;
   providerId: string;
 }
+export type TAddress = {
+  type?: "billing" | "shipping";
+  title?: string;
+  country?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  street?: string;
+};
+
 export type TUser = {
   _id?: string;
   name: string;
@@ -29,6 +39,7 @@ export type TUser = {
   gender?: TGender;
   contactNo?: string;
   bio?: string;
+  address?: TAddress;
   status?: TUserStatus;
   walletPoint?: number;
   commissionBalance?: number;
