@@ -73,7 +73,7 @@ const getAllUserFromDB = async (query: Record<string, unknown>) => {
 };
 
 const getSingleUserFromDB = async (id: string) => {
-  const result = await UserModel.findById(id);
+  const result = await UserModel.findById(id).lean();
 
   //if no user found with the id
   if (!result) {
@@ -135,9 +135,14 @@ const updateUserOnDB = async (
 
   const { email, ...updateData } = payload;
 
-  const result = await UserModel.findByIdAndUpdate(id, updateData, {
-    new: true,
-  });
+  const result = await UserModel.findByIdAndUpdate(
+    id,
+    { $set: updateData },
+    {
+      new: true,
+      runValidators: false,
+    }
+  ).lean();
 
   return result;
 };

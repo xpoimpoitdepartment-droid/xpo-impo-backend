@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { Schema, model } from "mongoose";
 import config from "../../config";
 import { possibleGenders, userRoles, userStatus } from "./user.const";
-import { IAuthProvider, TAddress, TUser } from "./user.interface";
+import { IAuthProvider, TUser } from "./user.interface";
 
 const authProviderSchema = new Schema<IAuthProvider>(
   {
@@ -13,19 +13,6 @@ const authProviderSchema = new Schema<IAuthProvider>(
     _id: false,
     versionKey: false,
   }
-);
-
-const addressSchema = new Schema<TAddress>(
-  {
-    type: { type: String, enum: ["billing", "shipping"] },
-    title: { type: String },
-    country: { type: String },
-    city: { type: String },
-    state: { type: String },
-    zipCode: { type: String },
-    street: { type: String },
-  },
-  { _id: false }
 );
 
 //mongoose schema for user
@@ -72,7 +59,7 @@ const userSchema = new Schema<TUser>(
       default: "",
     },
     address: {
-      type: addressSchema,
+      type: Schema.Types.Mixed,
       default: null,
     },
     status: {

@@ -86,7 +86,7 @@ const getAllUserFromDB = (query) => __awaiter(void 0, void 0, void 0, function* 
     };
 });
 const getSingleUserFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_model_1.UserModel.findById(id);
+    const result = yield user_model_1.UserModel.findById(id).lean();
     //if no user found with the id
     if (!result) {
         throw new handleAppError_1.default(http_status_1.default.NOT_FOUND, "User does not exist!");
@@ -129,9 +129,10 @@ const updateUserOnDB = (id, payload) => __awaiter(void 0, void 0, void 0, functi
         payload.password = yield bcrypt_1.default.hash(payload === null || payload === void 0 ? void 0 : payload.password, Number(config_1.default.bcrypt_salt_rounds));
     }
     const { email } = payload, updateData = __rest(payload, ["email"]);
-    const result = yield user_model_1.UserModel.findByIdAndUpdate(id, updateData, {
+    const result = yield user_model_1.UserModel.findByIdAndUpdate(id, { $set: updateData }, {
         new: true,
-    });
+        runValidators: false,
+    }).lean();
     return result;
 });
 const delteUserFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
