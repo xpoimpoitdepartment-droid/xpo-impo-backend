@@ -27,6 +27,12 @@ app.use(cors({
   ],
   credentials: true
 }));
+app.use((req: Request, res: Response, next) => {
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+  next();
+});
 
 app.use(
   expressSession({

@@ -29,6 +29,12 @@ app.use((0, cors_1.default)({
     ],
     credentials: true
 }));
+app.use((req, res, next) => {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+    next();
+});
 app.use((0, express_session_1.default)({
     secret: config_1.default.EXPRESS_SESSION,
     resave: false,
