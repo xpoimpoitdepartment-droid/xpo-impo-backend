@@ -111,14 +111,5 @@ userSchema.post("save", function (doc, next) {
     }
     next();
 });
-// Remove passwords from results
-userSchema.post("find", function (docs, next) {
-    docs.forEach((doc) => {
-        if (doc && doc.password) {
-            doc.password = "";
-        }
-    });
-    next();
-});
 // user model
 exports.UserModel = (0, mongoose_1.model)("user", userSchema);

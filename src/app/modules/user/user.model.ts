@@ -111,15 +111,5 @@ userSchema.post("save", function (doc, next) {
   next();
 });
 
-// Remove passwords from results
-userSchema.post("find", function (docs, next) {
-  docs.forEach((doc: any) => {
-    if (doc && doc.password) {
-      doc.password = "";
-    }
-  });
-  next();
-});
-
 // user model
 export const UserModel = model<TUser>("user", userSchema);

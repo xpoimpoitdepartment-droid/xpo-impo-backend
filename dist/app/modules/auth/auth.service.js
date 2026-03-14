@@ -71,7 +71,7 @@ const verifyEmailOnDB = (email, otp) => __awaiter(void 0, void 0, void 0, functi
 const loginUserFromDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const isUserExists = yield user_model_1.UserModel.findOne({
         email: payload === null || payload === void 0 ? void 0 : payload.email,
-    });
+    }).select("+password");
     if (!isUserExists) {
         throw new handleAppError_1.default(http_status_1.default.NOT_FOUND, "User does not exist!");
     }

@@ -85,7 +85,7 @@ const verifyEmailOnDB = async (email: string, otp: string) => {
 const loginUserFromDB = async (payload: TAuth) => {
   const isUserExists = await UserModel.findOne({
     email: payload?.email,
-  });
+  }).select("+password");
 
   if (!isUserExists) {
     throw new AppError(httpStatus.NOT_FOUND, "User does not exist!");
