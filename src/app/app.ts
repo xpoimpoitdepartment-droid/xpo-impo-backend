@@ -18,6 +18,7 @@ app.use(cors({
     "http://localhost:3000",
     "http://localhost:3001",
     "https://milkomart.com",
+    "https://backend.milkomart.com"
     "https://www.milkomart.com",
     "https://admin.milkomart.com",
     "https://www.admin.milkomart.com",
