@@ -49,6 +49,8 @@ export type TOrderedProduct = {
   wholeSalePrice?: number;
   quantity: number;
   variant?: string;
+  color?: string;
+  size?: string;
   subtotal: number; // price * quantity
 };
 

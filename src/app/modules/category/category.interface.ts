@@ -14,4 +14,5 @@ export type TCategory = {
   bannerImg: string;
   subCategories?: Types.ObjectId[];
   deletedImages?: string[];
+  sortOrder?: number;
 };

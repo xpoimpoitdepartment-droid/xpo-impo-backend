@@ -187,8 +187,41 @@ const productSchema = new Schema<TProduct>(
     ],
     //commission field
     commission: commissionSchema,
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
+    isTopProduct: {
+      type: Boolean,
+      default: false,
+    },
+    sortOrder: {
+      type: Number,
+      default: 999999,
+    },
+    relatedProducts: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "product",
+      },
+    ],
+    attributes: [
+      {
+        name: { type: String },
+        values: [{ type: String }],
+      },
+    ],
+    variants: [
+      {
+        attributes: { type: Map, of: String },
+        price: { type: Number },
+        salePrice: { type: Number },
+        quantity: { type: Number },
+        sku: { type: String },
+        image: { type: String },
+      },
+    ],
   },
-
   {
     timestamps: true,
   }

@@ -17,8 +17,11 @@ app.use(cors({
     "https://milko-home-lime.vercel.app",
     "http://localhost:3000",
     "http://localhost:3001",
+    "http://localhost:3002",
+    "http://localhost:3003",
+    "http://localhost:3004",
     "https://milkomart.com",
-    "https://backend.milkomart.com"
+    "https://backend.milkomart.com",
     "https://www.milkomart.com",
     "https://admin.milkomart.com",
     "https://www.admin.milkomart.com",

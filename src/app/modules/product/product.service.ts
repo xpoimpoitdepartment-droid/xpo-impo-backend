@@ -22,6 +22,10 @@ const createProductOnDB = async (payload: TProduct) => {
 };
 
 const getAllProductFromDB = async (query: Record<string, unknown>) => {
+  if (query && typeof query === "object" && !query.sort) {
+    query.sort = "sortOrder,-createdAt";
+  }
+
   const productQuery = new QueryBuilder(
     ProductModel.find()
       .populate("brandAndCategories.brand")
@@ -37,6 +41,13 @@ const getAllProductFromDB = async (query: Record<string, unknown>) => {
 
   // ✅ Execute main query for product data
   const data = await productQuery.modelQuery;
+  
+  if (query.sort === "sortOrder") {
+    console.log("Returning Sorted Data:", data.slice(0, 5).map(p => ({
+      name: p.description?.name,
+      sortOrder: p.sortOrder
+    })));
+  }
 
   // ✅ Use built-in countTotal() from QueryBuilder
   const meta = await productQuery.countTotal();
@@ -52,6 +63,7 @@ const getProductsByDiscount = async (discount: number = 0) => {
     "productInfo.discount": { $gte: discount },
     "description.status": "publish",
   })
+    .sort({ sortOrder: 1, createdAt: -1 })
     .populate("brandAndCategories.brand")
     .populate("brandAndCategories.categories")
     .populate("brandAndCategories.tags");
@@ -116,6 +128,9 @@ const getProductsByCategoryandTag = async (category: string, tag: string) => {
         brandDetails: 0,
       },
     },
+    {
+      $sort: { sortOrder: 1, createdAt: -1 },
+    },
   ]);
 
   return products;
@@ -125,7 +140,8 @@ const getSingleProductFromDB = async (id: string) => {
   const result = await ProductModel.findById(id)
     .populate("brandAndCategories.brand")
     .populate("brandAndCategories.categories")
-    .populate("brandAndCategories.tags");
+    .populate("brandAndCategories.tags")
+    .populate("relatedProducts");
   return result;
 };
 

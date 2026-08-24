@@ -83,9 +83,7 @@ const productInfoZodSchema = z.object({
   quantity: z.number({
     error: () => "Quantity is required!",
   }),
-  sku: z.string({
-    error: () => "SKU is required!",
-  }),
+  sku: z.string().optional(),
   width: z.string({
     error: () => "Width is required!",
   }),
@@ -101,6 +99,20 @@ const productInfoZodSchema = z.object({
   external: externalZodSchema.optional(),
 });
 
+const attributeZodSchema = z.object({
+  name: z.string(),
+  values: z.array(z.string()),
+});
+
+const variantInfoZodSchema = z.object({
+  attributes: z.record(z.string(), z.string()),
+  price: z.number(),
+  salePrice: z.number(),
+  quantity: z.number(),
+  sku: z.string().optional(),
+  image: z.string().optional(),
+});
+
 // Main Product Validation
 export const createProductZodSchema = z.object({
   shopId: z.string().optional(),
@@ -114,6 +126,12 @@ export const createProductZodSchema = z.object({
   specifications: z.any().optional(),
   // commission validation
   commission: commissionZodSchema.optional(),
+  isFeatured: z.boolean().optional(),
+  isTopProduct: z.boolean().optional(),
+  sortOrder: z.number().optional(),
+  relatedProducts: z.array(z.string()).optional(),
+  attributes: z.array(attributeZodSchema).optional(),
+  variants: z.array(variantInfoZodSchema).optional(),
 });
 
 export const updateProductZodSchema = z.object({
@@ -131,4 +149,10 @@ export const updateProductZodSchema = z.object({
   productInfo: z.any(),
   specifications: z.any().optional(),
   deletedImages: z.array(z.string()).optional(),
+  isFeatured: z.boolean().optional(),
+  isTopProduct: z.boolean().optional(),
+  sortOrder: z.number().optional(),
+  relatedProducts: z.array(z.string()).optional(),
+  attributes: z.array(attributeZodSchema).optional(),
+  variants: z.array(variantInfoZodSchema).optional(),
 });

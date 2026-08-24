@@ -21,6 +21,7 @@ export const createCategoryZodSchema = z.object({
   }),
   icon: iconSchema,
   subCategories: z.array(z.string()).default([]).optional(),
+  sortOrder: z.number().optional(),
 });
 
 export const editIconSchema = z.object({
@@ -39,4 +40,5 @@ export const updateCategoryZodSchema = z.object({
   image: z.string().url("Invalid image URL!").optional(),
   bannerImg: z.string().url("Invalid banner image URL!").optional(),
   deletedImages: z.array(z.string()).optional(),
+  sortOrder: z.number().optional(),
 });

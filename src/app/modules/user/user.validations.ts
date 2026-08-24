@@ -20,6 +20,19 @@ export const createUserZodSchema = z.object({
   bio: z.string().optional(),
 
   status: z.enum([...userStatus] as [string, ...string[]]).optional(),
+  
+  address: z.object({
+    type: z.enum(["billing", "shipping"]).optional(),
+    title: z.string().optional(),
+    country: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    zipCode: z.string().optional(),
+    street: z.string().optional(),
+    union: z.string().optional(),
+    thana: z.string().optional(),
+    district: z.string().optional(),
+  }).optional(),
 
   walletPoint: z.number().optional(),
 

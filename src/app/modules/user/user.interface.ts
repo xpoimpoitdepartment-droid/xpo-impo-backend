@@ -26,6 +26,9 @@ export type TAddress = {
   state?: string;
   zipCode?: string;
   street?: string;
+  union?: string;
+  thana?: string;
+  district?: string;
 };
 
 export type TUser = {

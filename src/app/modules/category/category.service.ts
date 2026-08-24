@@ -5,7 +5,7 @@ import { CategoryModel } from "./category.model";
 import httpStatus from "http-status";
 
 const getAllCategoryFromDB = async () => {
-  const result = await CategoryModel.find().populate('subCategories');
+  const result = await CategoryModel.find().populate('subCategories').sort({ sortOrder: 1 });
   return result;
 };
 

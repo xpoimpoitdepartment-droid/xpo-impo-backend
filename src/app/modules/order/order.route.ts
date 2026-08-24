@@ -9,6 +9,8 @@ router.get("/", orderControllers.getAllOrder);
 router.get("/status-counts", orderControllers.getOrderStatusCounts);
 router.get("/summary", orderControllers.getOrderSummary);
 
+router.get("/customer-stats/:phone", orderControllers.getCustomerOrderStats);
+
 router.get("/my-order/:id", orderControllers.getMyOrders);
 
 router.get("/:id", orderControllers.getSingleOrder);

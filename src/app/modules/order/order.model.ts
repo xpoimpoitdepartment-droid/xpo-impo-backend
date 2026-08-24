@@ -222,6 +222,12 @@ const orderedProductSchema = new Schema(
       type: Number,
       required: true,
     },
+    color: {
+      type: String,
+    },
+    size: {
+      type: String,
+    },
   },
   { _id: false }
 );

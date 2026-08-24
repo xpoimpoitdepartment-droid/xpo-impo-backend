@@ -5,6 +5,8 @@ export type TCartItemProduct = {
   productId: Types.ObjectId[];
   quantity: number;
   totalAmount: number;
+  color?: string;
+  size?: string;
 };
 
 export type TAddress = {

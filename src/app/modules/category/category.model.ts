@@ -35,6 +35,10 @@ const categorySchema = new Schema<TCategory>(
       type: [Schema.Types.ObjectId],
       ref: "category",
     },
+    sortOrder: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

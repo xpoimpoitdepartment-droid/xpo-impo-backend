@@ -25,6 +25,12 @@ router.post(
 router.post("/logout/:id", AuthController.logOutUser);
 
 router.post(
+  "/impersonate",
+  checkAuth("admin", "super-admin"),
+  AuthController.impersonateUser
+);
+
+router.post(
   "/login/provider",
   validateRequest(AuthValidations.loginUserUsingProvider),
   AuthController.loginUserUsingProvider

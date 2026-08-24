@@ -437,6 +437,39 @@ const resetPassword = catchAsync(async (req, res) => {
   });
 });
 
+const impersonateUser = catchAsync(async (req, res) => {
+  const { targetUserId } = req.body;
+
+  if (req.user?.role !== "admin" && req.user?.role !== "super-admin") {
+     throw new AppError(StatusCodes.FORBIDDEN, "Only admins can impersonate");
+  }
+
+  const { UserModel } = require("../user/user.model");
+  const user = await UserModel.findById(targetUserId);
+  if (!user) throw new AppError(StatusCodes.NOT_FOUND, "Target user not found");
+
+  const jwt = require("jsonwebtoken");
+  const jwtPayload = {
+    userId: user._id,
+    email: user.email,
+    role: user.role,
+  };
+
+  const token = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
+    expiresIn: "1h",
+  });
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: `Impersonating ${user.name?.firstName}`,
+    data: {
+      user,
+      accessToken: token,
+    },
+  });
+});
+
 export const AuthController = {
   registerUser,
   loginUser,
@@ -449,4 +482,5 @@ export const AuthController = {
   resetPasswordWithOtp,
   resetPassword,
   verifyEmail,
+  impersonateUser,
 };

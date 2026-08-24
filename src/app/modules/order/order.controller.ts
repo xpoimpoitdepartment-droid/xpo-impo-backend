@@ -175,6 +175,18 @@ const updateOrderStatus = catchAsync(async (req, res) => {
   });
 });
 
+const getCustomerOrderStats = catchAsync(async (req, res) => {
+  const phone = req.params.phone;
+  const result = await orderServices.getCustomerOrderStatsFromDB(phone);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Customer order stats retrieved successfully!",
+    data: result,
+  });
+});
+
 export const orderControllers = {
   getAllOrder,
   getOrderStatusCounts,
@@ -185,4 +197,5 @@ export const orderControllers = {
   updateOrder,
   getOrderSummary,
   getMyOrders,
+  getCustomerOrderStats,
 };

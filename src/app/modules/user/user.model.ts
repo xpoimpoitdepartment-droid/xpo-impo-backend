@@ -4,6 +4,21 @@ import config from "../../config";
 import { possibleGenders, userRoles, userStatus } from "./user.const";
 import { IAuthProvider, TUser } from "./user.interface";
 
+const addressSchema = new Schema(
+  {
+    state: { type: String, required: false },
+    zipCode: { type: String, required: false },
+    street: { type: String, required: false },
+    union: { type: String, required: false },
+    thana: { type: String, required: false },
+    district: { type: String, required: false },
+  },
+  {
+    _id: false,
+    versionKey: false,
+  }
+);
+
 const authProviderSchema = new Schema<IAuthProvider>(
   {
     provider: { type: String, required: true },

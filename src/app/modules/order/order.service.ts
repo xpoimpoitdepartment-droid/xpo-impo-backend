@@ -748,6 +748,24 @@ const getOrderSummaryFromDB = async ({
               ],
             },
           },
+          totalCancelledSaleAmount: {
+            $sum: {
+              $cond: [
+                { $eq: ["$status", "cancelled"] },
+                { $ifNull: ["$totalAmount", 0] },
+                0,
+              ],
+            },
+          },
+          totalDeliveredSaleAmount: {
+            $sum: {
+              $cond: [
+                { $eq: ["$status", "delivered"] },
+                { $ifNull: ["$totalAmount", 0] },
+                0,
+              ],
+            },
+          },
         },
       },
     ]);
@@ -785,6 +803,8 @@ const getOrderSummaryFromDB = async ({
       totalOrderSaleAmount: rootSummary[0]?.totalOrderSaleAmount || 0,
       totalPendingSale: rootSummary[0]?.totalPendingSale || 0,
       totalPaidOrderSaleAmount: rootSummary[0]?.totalPaidOrderSaleAmount || 0,
+      totalCancelledSaleAmount: rootSummary[0]?.totalCancelledSaleAmount || 0,
+      totalDeliveredSaleAmount: rootSummary[0]?.totalDeliveredSaleAmount || 0,
       totalItemsSold: nestedSummary[0]?.totalItemsSold || 0,
       totalProductSale: nestedSummary[0]?.totalProductSale || 0,
     };
@@ -815,6 +835,20 @@ const getOrderSummaryFromDB = async ({
 const createOrderIntoDB = async (payload: TOrder) => {
   if (payload) {
     let totalQuantity = 0;
+
+    // 🔹 Fake Order Block System Check
+    const customerPhone = payload.customerInfo?.phone;
+    if (customerPhone && payload.userRole === "customer") {
+      const stats = await getCustomerOrderStatsFromDB(customerPhone);
+      
+      // If a customer has at least 3 cancelled orders and more cancelled than delivered, block them.
+      if (stats.cancelledOrders >= 3 && stats.cancelledOrders > stats.deliveredOrders) {
+        throw new AppError(
+          httpStatus.FORBIDDEN,
+          "Order blocked: This phone number has a high cancellation history."
+        );
+      }
+    }
 
     // 🔹 Generate tracking number for the whole order
     payload.trackingNumber = nanoid();
@@ -986,6 +1020,34 @@ const updateOrderStatusInDB = async (id: string, status: OrderStatus) => {
   return order;
 };
 
+const getCustomerOrderStatsFromDB = async (phone: string) => {
+  const result = await OrderModel.aggregate([
+    {
+      $match: {
+        "paymentInfo.contactNo": phone, // or whatever field the phone is
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalOrders: { $sum: 1 },
+        deliveredOrders: {
+          $sum: { $cond: [{ $eq: ["$status", "delivered"] }, 1, 0] },
+        },
+        cancelledOrders: {
+          $sum: { $cond: [{ $eq: ["$status", "cancelled"] }, 1, 0] },
+        },
+      },
+    },
+  ]);
+
+  if (result.length > 0) {
+    return result[0];
+  }
+
+  return { totalOrders: 0, deliveredOrders: 0, cancelledOrders: 0 };
+};
+
 export const orderServices = {
   getAllOrdersFromDB,
   getOrderStatusCountsFromDB,
@@ -996,4 +1058,5 @@ export const orderServices = {
   getOrderSummaryFromDB,
   updateOrderInDB,
   getMyOrdersFromDB,
+  getCustomerOrderStatsFromDB,
 };

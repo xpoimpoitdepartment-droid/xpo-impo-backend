@@ -44,6 +44,20 @@ export type TProductInfo = {
   external?: TExternal;
 };
 
+export type TAttribute = {
+  name: string;
+  values: string[];
+};
+
+export type TVariantInfo = {
+  attributes: { [key: string]: string };
+  price: number;
+  salePrice: number;
+  quantity: number;
+  sku?: string;
+  image?: string;
+};
+
 export type TProduct = {
   shopId?: Types.ObjectId;
   featuredImg: string;
@@ -56,4 +70,10 @@ export type TProduct = {
   specifications?: [{ key: string; value: string }];
   deletedImages?: string[];
   commission?: TCommission;
+  isFeatured?: boolean;
+  isTopProduct?: boolean;
+  sortOrder?: number;
+  relatedProducts?: Types.ObjectId[];
+  attributes?: TAttribute[];
+  variants?: TVariantInfo[];
 };

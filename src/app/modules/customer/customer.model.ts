@@ -61,6 +61,14 @@ const cartItemProductSchema = new Schema<TCartItemProduct>(
       type: Number,
       required: [true, 'Total amount is required!'],
     },
+    color: {
+      type: String,
+      default: '',
+    },
+    size: {
+      type: String,
+      default: '',
+    },
   },
   { _id: false }
 );
