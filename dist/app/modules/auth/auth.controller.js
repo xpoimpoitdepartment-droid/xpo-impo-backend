@@ -146,8 +146,8 @@ const auth_service_1 = require("./auth.service");
 const registerUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userInfo = Object.assign(Object.assign({}, req.body), { auths: {
-            provider: "email",
-            providerId: req.body.email,
+            provider: req.body.email ? "email" : "mobile",
+            providerId: req.body.email || req.body.contactNo,
         } });
     const result = yield auth_service_1.AuthServices.registerUserOnDB(userInfo);
     (0, sendResponse_1.default)(res, {
@@ -378,6 +378,35 @@ const resetPassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
         data: result,
     });
 }));
+const impersonateUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c;
+    const { targetUserId } = req.body;
+    if (((_a = req.user) === null || _a === void 0 ? void 0 : _a.role) !== "admin" && ((_b = req.user) === null || _b === void 0 ? void 0 : _b.role) !== "super-admin") {
+        throw new handleAppError_1.default(http_status_codes_1.StatusCodes.FORBIDDEN, "Only admins can impersonate");
+    }
+    const { UserModel } = require("../user/user.model");
+    const user = yield UserModel.findById(targetUserId);
+    if (!user)
+        throw new handleAppError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Target user not found");
+    const jwt = require("jsonwebtoken");
+    const jwtPayload = {
+        userId: user._id,
+        email: user.email,
+        role: user.role,
+    };
+    const token = jwt.sign(jwtPayload, config_1.default.jwt_access_secret, {
+        expiresIn: "1h",
+    });
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: `Impersonating ${(_c = user.name) === null || _c === void 0 ? void 0 : _c.firstName}`,
+        data: {
+            user,
+            accessToken: token,
+        },
+    });
+}));
 exports.AuthController = {
     registerUser,
     loginUser,
@@ -390,4 +419,5 @@ exports.AuthController = {
     resetPasswordWithOtp,
     resetPassword,
     verifyEmail,
+    impersonateUser,
 };

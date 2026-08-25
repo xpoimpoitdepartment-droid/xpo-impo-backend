@@ -109,15 +109,12 @@ const productInfoSchema = new mongoose_1.Schema({
     },
     width: {
         type: String,
-        required: [true, "Width is Required!"],
     },
     height: {
         type: String,
-        required: [true, "Height is Required!"],
     },
     length: {
         type: String,
-        required: [true, "Length is Required!"],
     },
     isDigital: {
         type: Boolean,
@@ -164,6 +161,40 @@ const productSchema = new mongoose_1.Schema({
     ],
     //commission field
     commission: commissionSchema,
+    isFeatured: {
+        type: Boolean,
+        default: false,
+    },
+    isTopProduct: {
+        type: Boolean,
+        default: false,
+    },
+    sortOrder: {
+        type: Number,
+        default: 999999,
+    },
+    relatedProducts: [
+        {
+            type: mongoose_1.Schema.Types.ObjectId,
+            ref: "product",
+        },
+    ],
+    attributes: [
+        {
+            name: { type: String },
+            values: [{ type: String }],
+        },
+    ],
+    variants: [
+        {
+            attributes: { type: Map, of: String },
+            price: { type: Number },
+            salePrice: { type: Number },
+            quantity: { type: Number },
+            sku: { type: String },
+            image: { type: String },
+        },
+    ],
 }, {
     timestamps: true,
 });

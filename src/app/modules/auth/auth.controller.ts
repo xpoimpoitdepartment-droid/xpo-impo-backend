@@ -158,8 +158,8 @@ const registerUser = catchAsync(async (req, res) => {
   const userInfo = {
     ...req.body,
     auths: {
-      provider: "email",
-      providerId: req.body.email,
+      provider: req.body.email ? "email" : "mobile",
+      providerId: req.body.email || req.body.contactNo,
     },
   };
 
@@ -440,7 +440,7 @@ const resetPassword = catchAsync(async (req, res) => {
 const impersonateUser = catchAsync(async (req, res) => {
   const { targetUserId } = req.body;
 
-  if (req.user?.role !== "admin" && req.user?.role !== "super-admin") {
+  if ((req.user as any)?.role !== "admin" && (req.user as any)?.role !== "super-admin") {
      throw new AppError(StatusCodes.FORBIDDEN, "Only admins can impersonate");
   }
 

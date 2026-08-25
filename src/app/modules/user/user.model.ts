@@ -39,8 +39,14 @@ const userSchema = new Schema<TUser>(
     },
     email: {
       type: String,
-      required: [true, "Email is required to create a user!"],
-      unique: [true, "User with this email already exists!"],
+      required: [
+        function (this: any) {
+          return this.role !== "sr";
+        },
+        "Email is required to create a user!",
+      ],
+      unique: true,
+      sparse: true,
       lowercase: true,
     },
     isEmailVerified: {
@@ -67,7 +73,8 @@ const userSchema = new Schema<TUser>(
     },
     contactNo: {
       type: String,
-      default: "",
+      unique: true,
+      sparse: true,
     },
     bio: {
       type: String,
@@ -97,6 +104,7 @@ const userSchema = new Schema<TUser>(
     },
     auths: {
       type: [authProviderSchema],
+      default: undefined,
     },
   },
   {

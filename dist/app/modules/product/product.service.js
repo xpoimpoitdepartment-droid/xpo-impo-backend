@@ -33,6 +33,9 @@ const createProductOnDB = (payload) => __awaiter(void 0, void 0, void 0, functio
     return result;
 });
 const getAllProductFromDB = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    if (query && typeof query === "object" && !query.sort) {
+        query.sort = "sortOrder,-createdAt";
+    }
     const productQuery = new QueryBuilder_1.default(product_model_1.ProductModel.find()
         .populate("brandAndCategories.brand")
         .populate("brandAndCategories.categories")
@@ -44,6 +47,15 @@ const getAllProductFromDB = (query) => __awaiter(void 0, void 0, void 0, functio
         .fields();
     // ✅ Execute main query for product data
     const data = yield productQuery.modelQuery;
+    if (query.sort === "sortOrder") {
+        console.log("Returning Sorted Data:", data.slice(0, 5).map(p => {
+            var _a;
+            return ({
+                name: (_a = p.description) === null || _a === void 0 ? void 0 : _a.name,
+                sortOrder: p.sortOrder
+            });
+        }));
+    }
     // ✅ Use built-in countTotal() from QueryBuilder
     const meta = yield productQuery.countTotal();
     return {
@@ -56,6 +68,7 @@ const getProductsByDiscount = (...args_1) => __awaiter(void 0, [...args_1], void
         "productInfo.discount": { $gte: discount },
         "description.status": "publish",
     })
+        .sort({ sortOrder: 1, createdAt: -1 })
         .populate("brandAndCategories.brand")
         .populate("brandAndCategories.categories")
         .populate("brandAndCategories.tags");
@@ -112,6 +125,9 @@ const getProductsByCategoryandTag = (category, tag) => __awaiter(void 0, void 0,
                 brandDetails: 0,
             },
         },
+        {
+            $sort: { sortOrder: 1, createdAt: -1 },
+        },
     ]);
     return products;
 });
@@ -119,7 +135,8 @@ const getSingleProductFromDB = (id) => __awaiter(void 0, void 0, void 0, functio
     const result = yield product_model_1.ProductModel.findById(id)
         .populate("brandAndCategories.brand")
         .populate("brandAndCategories.categories")
-        .populate("brandAndCategories.tags");
+        .populate("brandAndCategories.tags")
+        .populate("relatedProducts");
     return result;
 });
 const updateProductOnDB = (id, updatedData) => __awaiter(void 0, void 0, void 0, function* () {

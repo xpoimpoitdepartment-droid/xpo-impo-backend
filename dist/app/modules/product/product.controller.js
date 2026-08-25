@@ -97,6 +97,7 @@ const updateProduct = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
     const { id } = req.params;
     const files = req.files;
     const updatedData = Object.assign({}, req.body);
+    console.log("UPDATE PAYLOAD req.body.relatedProducts:", req.body.relatedProducts);
     if ((_b = (_a = files["featuredImgFile"]) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.path) {
         updatedData.featuredImg = files["featuredImgFile"][0].path;
     }

@@ -12,6 +12,7 @@ const router = express_1.default.Router();
 router.get("/", order_controller_1.orderControllers.getAllOrder);
 router.get("/status-counts", order_controller_1.orderControllers.getOrderStatusCounts);
 router.get("/summary", order_controller_1.orderControllers.getOrderSummary);
+router.get("/customer-stats/:phone", order_controller_1.orderControllers.getCustomerOrderStats);
 router.get("/my-order/:id", order_controller_1.orderControllers.getMyOrders);
 router.get("/:id", order_controller_1.orderControllers.getSingleOrder);
 router.get("/commission/:id", order_controller_1.orderControllers.getUserCommissionSummary);

@@ -487,7 +487,7 @@ const getUserCommissionSummaryFromDB = (userId) => __awaiter(void 0, void 0, voi
 //   };
 // };
 const getOrderSummaryFromDB = (_a) => __awaiter(void 0, [_a], void 0, function* ({ startDate, endDate, }) {
-    var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
+    var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v;
     try {
         // ✅ Convert and validate date range
         const start = startDate && !isNaN(new Date(startDate).getTime())
@@ -697,6 +697,24 @@ const getOrderSummaryFromDB = (_a) => __awaiter(void 0, [_a], void 0, function* 
                             ],
                         },
                     },
+                    totalCancelledSaleAmount: {
+                        $sum: {
+                            $cond: [
+                                { $eq: ["$status", "cancelled"] },
+                                { $ifNull: ["$totalAmount", 0] },
+                                0,
+                            ],
+                        },
+                    },
+                    totalDeliveredSaleAmount: {
+                        $sum: {
+                            $cond: [
+                                { $eq: ["$status", "delivered"] },
+                                { $ifNull: ["$totalAmount", 0] },
+                                0,
+                            ],
+                        },
+                    },
                 },
             },
         ]);
@@ -732,8 +750,10 @@ const getOrderSummaryFromDB = (_a) => __awaiter(void 0, [_a], void 0, function* 
             totalOrderSaleAmount: ((_p = rootSummary[0]) === null || _p === void 0 ? void 0 : _p.totalOrderSaleAmount) || 0,
             totalPendingSale: ((_q = rootSummary[0]) === null || _q === void 0 ? void 0 : _q.totalPendingSale) || 0,
             totalPaidOrderSaleAmount: ((_r = rootSummary[0]) === null || _r === void 0 ? void 0 : _r.totalPaidOrderSaleAmount) || 0,
-            totalItemsSold: ((_s = nestedSummary[0]) === null || _s === void 0 ? void 0 : _s.totalItemsSold) || 0,
-            totalProductSale: ((_t = nestedSummary[0]) === null || _t === void 0 ? void 0 : _t.totalProductSale) || 0,
+            totalCancelledSaleAmount: ((_s = rootSummary[0]) === null || _s === void 0 ? void 0 : _s.totalCancelledSaleAmount) || 0,
+            totalDeliveredSaleAmount: ((_t = rootSummary[0]) === null || _t === void 0 ? void 0 : _t.totalDeliveredSaleAmount) || 0,
+            totalItemsSold: ((_u = nestedSummary[0]) === null || _u === void 0 ? void 0 : _u.totalItemsSold) || 0,
+            totalProductSale: ((_v = nestedSummary[0]) === null || _v === void 0 ? void 0 : _v.totalProductSale) || 0,
         };
     }
     catch (error) {
@@ -760,8 +780,18 @@ const getOrderSummaryFromDB = (_a) => __awaiter(void 0, [_a], void 0, function* 
     }
 });
 const createOrderIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     if (payload) {
         let totalQuantity = 0;
+        // 🔹 Fake Order Block System Check
+        const customerPhone = (_a = payload.customerInfo) === null || _a === void 0 ? void 0 : _a.phone;
+        if (customerPhone && payload.userRole === "customer") {
+            const stats = yield getCustomerOrderStatsFromDB(customerPhone);
+            // If a customer has at least 3 cancelled orders and more cancelled than delivered, block them.
+            if (stats.cancelledOrders >= 3 && stats.cancelledOrders > stats.deliveredOrders) {
+                throw new handleAppError_1.default(http_status_1.default.FORBIDDEN, "Order blocked: This phone number has a high cancellation history.");
+            }
+        }
         // 🔹 Generate tracking number for the whole order
         payload.trackingNumber = (0, nanoid_1.nanoid)();
         // 🔹 Default role
@@ -888,6 +918,31 @@ const updateOrderStatusInDB = (id, status) => __awaiter(void 0, void 0, void 0, 
     yield order.save();
     return order;
 });
+const getCustomerOrderStatsFromDB = (phone) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield order_model_1.OrderModel.aggregate([
+        {
+            $match: {
+                "paymentInfo.contactNo": phone, // or whatever field the phone is
+            },
+        },
+        {
+            $group: {
+                _id: null,
+                totalOrders: { $sum: 1 },
+                deliveredOrders: {
+                    $sum: { $cond: [{ $eq: ["$status", "delivered"] }, 1, 0] },
+                },
+                cancelledOrders: {
+                    $sum: { $cond: [{ $eq: ["$status", "cancelled"] }, 1, 0] },
+                },
+            },
+        },
+    ]);
+    if (result.length > 0) {
+        return result[0];
+    }
+    return { totalOrders: 0, deliveredOrders: 0, cancelledOrders: 0 };
+});
 exports.orderServices = {
     getAllOrdersFromDB,
     getOrderStatusCountsFromDB,
@@ -898,4 +953,5 @@ exports.orderServices = {
     getOrderSummaryFromDB,
     updateOrderInDB,
     getMyOrdersFromDB,
+    getCustomerOrderStatsFromDB,
 };

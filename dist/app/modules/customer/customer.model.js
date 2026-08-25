@@ -51,6 +51,14 @@ const cartItemProductSchema = new mongoose_1.Schema({
         type: Number,
         required: [true, 'Total amount is required!'],
     },
+    color: {
+        type: String,
+        default: '',
+    },
+    size: {
+        type: String,
+        default: '',
+    },
 }, { _id: false });
 // Cart Item Schema
 const cartItemSchema = new mongoose_1.Schema({

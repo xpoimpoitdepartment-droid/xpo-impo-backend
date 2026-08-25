@@ -17,6 +17,17 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const mongoose_1 = require("mongoose");
 const config_1 = __importDefault(require("../../config"));
 const user_const_1 = require("./user.const");
+const addressSchema = new mongoose_1.Schema({
+    state: { type: String, required: false },
+    zipCode: { type: String, required: false },
+    street: { type: String, required: false },
+    union: { type: String, required: false },
+    thana: { type: String, required: false },
+    district: { type: String, required: false },
+}, {
+    _id: false,
+    versionKey: false,
+});
 const authProviderSchema = new mongoose_1.Schema({
     provider: { type: String, required: true },
     providerId: { type: String, required: true },
@@ -32,8 +43,14 @@ const userSchema = new mongoose_1.Schema({
     },
     email: {
         type: String,
-        required: [true, "Email is required to create a user!"],
-        unique: [true, "User with this email already exists!"],
+        required: [
+            function () {
+                return this.role !== "sr";
+            },
+            "Email is required to create a user!",
+        ],
+        unique: true,
+        sparse: true,
         lowercase: true,
     },
     isEmailVerified: {
@@ -60,7 +77,8 @@ const userSchema = new mongoose_1.Schema({
     },
     contactNo: {
         type: String,
-        default: "",
+        unique: true,
+        sparse: true,
     },
     bio: {
         type: String,
@@ -90,6 +108,7 @@ const userSchema = new mongoose_1.Schema({
     },
     auths: {
         type: [authProviderSchema],
+        default: undefined,
     },
 }, {
     timestamps: true, // Automatically add createdAt and updatedAt fields

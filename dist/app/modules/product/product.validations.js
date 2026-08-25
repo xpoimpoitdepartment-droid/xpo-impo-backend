@@ -75,22 +75,26 @@ const productInfoZodSchema = zod_1.z.object({
     quantity: zod_1.z.number({
         error: () => "Quantity is required!",
     }),
-    sku: zod_1.z.string({
-        error: () => "SKU is required!",
-    }),
-    width: zod_1.z.string({
-        error: () => "Width is required!",
-    }),
-    height: zod_1.z.string({
-        error: () => "Height is required!",
-    }),
-    length: zod_1.z.string({
-        error: () => "Length is required!",
-    }),
+    sku: zod_1.z.string().optional(),
+    width: zod_1.z.string().optional(),
+    height: zod_1.z.string().optional(),
+    length: zod_1.z.string().optional(),
     isDigital: zod_1.z.boolean().optional(),
     digital: zod_1.z.string().optional(),
     isExternal: zod_1.z.boolean().optional(),
     external: externalZodSchema.optional(),
+});
+const attributeZodSchema = zod_1.z.object({
+    name: zod_1.z.string(),
+    values: zod_1.z.array(zod_1.z.string()),
+});
+const variantInfoZodSchema = zod_1.z.object({
+    attributes: zod_1.z.record(zod_1.z.string(), zod_1.z.string()),
+    price: zod_1.z.number(),
+    salePrice: zod_1.z.number(),
+    quantity: zod_1.z.number(),
+    sku: zod_1.z.string().optional(),
+    image: zod_1.z.string().optional(),
 });
 // Main Product Validation
 exports.createProductZodSchema = zod_1.z.object({
@@ -105,6 +109,12 @@ exports.createProductZodSchema = zod_1.z.object({
     specifications: zod_1.z.any().optional(),
     // commission validation
     commission: commissionZodSchema.optional(),
+    isFeatured: zod_1.z.boolean().optional(),
+    isTopProduct: zod_1.z.boolean().optional(),
+    sortOrder: zod_1.z.number().optional(),
+    relatedProducts: zod_1.z.array(zod_1.z.string()).optional(),
+    attributes: zod_1.z.array(attributeZodSchema).optional(),
+    variants: zod_1.z.array(variantInfoZodSchema).optional(),
 });
 exports.updateProductZodSchema = zod_1.z.object({
     shopId: zod_1.z.string().optional(),
@@ -121,4 +131,10 @@ exports.updateProductZodSchema = zod_1.z.object({
     productInfo: zod_1.z.any(),
     specifications: zod_1.z.any().optional(),
     deletedImages: zod_1.z.array(zod_1.z.string()).optional(),
+    isFeatured: zod_1.z.boolean().optional(),
+    isTopProduct: zod_1.z.boolean().optional(),
+    sortOrder: zod_1.z.number().optional(),
+    relatedProducts: zod_1.z.array(zod_1.z.string()).optional(),
+    attributes: zod_1.z.array(attributeZodSchema).optional(),
+    variants: zod_1.z.array(variantInfoZodSchema).optional(),
 });

@@ -191,6 +191,12 @@ const orderedProductSchema = new mongoose_1.Schema({
         type: Number,
         required: true,
     },
+    color: {
+        type: String,
+    },
+    size: {
+        type: String,
+    },
 }, { _id: false });
 const orderInfoSchema = new mongoose_1.Schema({
     // orderBy: {

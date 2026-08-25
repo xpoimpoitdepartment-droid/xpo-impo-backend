@@ -32,6 +32,10 @@ const categorySchema = new mongoose_1.Schema({
         type: [mongoose_1.Schema.Types.ObjectId],
         ref: "category",
     },
+    sortOrder: {
+        type: Number,
+        default: 0,
+    },
 }, {
     timestamps: true,
 });

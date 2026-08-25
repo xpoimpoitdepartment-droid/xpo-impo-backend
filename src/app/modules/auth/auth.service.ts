@@ -13,18 +13,32 @@ import { storeOTP, verifyOTP } from "../otp/otp.service";
 import { UserModel } from "../user/user.model";
 import { TAuth, TExternalProviderAuth } from "./auth.interface";
 
-const registerUserOnDB = async (payload: TAuth) => {
-  const email = payload.email.toLowerCase();
+const registerUserOnDB = async (payload: any) => {
+  const role = payload.role || "customer";
+  
+  if (role !== "sr" && !payload.email) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Email is required");
+  }
+
+  const email = payload.email ? payload.email.toLowerCase() : undefined;
 
   // ✅ Check if user already exists
-  const existing = await UserModel.findOne({ email });
-  if (existing) {
-    throw new Error("Email already registered");
+  if (email) {
+    const existing = await UserModel.findOne({ email });
+    if (existing) {
+      throw new Error("Email already registered");
+    }
+  }
+
+  if (role === "sr" && payload.contactNo) {
+    const existingMobile = await UserModel.findOne({ contactNo: payload.contactNo });
+    if (existingMobile) {
+      throw new Error("Mobile number already registered");
+    }
   }
 
   // ✅ Determine role & status
   const activeRoles = ["customer", "admin", "super-admin"];
-  const role = payload.role || "customer";
   const status = activeRoles.includes(role) ? "active" : "pending";
 
   // ✅ Hash password
@@ -32,28 +46,28 @@ const registerUserOnDB = async (payload: TAuth) => {
     throw new AppError(httpStatus.BAD_REQUEST, "Password is required");
   }
 
-  // ✅ Create user with default isEmailVerified = false
+  // ✅ Create user with default isEmailVerified = true (Disabled email verification)
   const userData = {
     ...payload,
     email,
     role,
     status,
-    isEmailVerified: false,
+    isEmailVerified: true,
   };
 
   const user = await UserModel.create(userData);
 
-  // ✅ Generate and store OTP
-  const otp = generateOTP();
-  await storeOTP(
-    email,
-    "email_verification",
-    otp,
-    Number(process.env.OTP_TTL_SECONDS || 300)
-  );
+  // ✅ Generate and store OTP (Disabled as per request)
+  // const otp = generateOTP();
+  // await storeOTP(
+  //   email,
+  //   "email_verification",
+  //   otp,
+  //   Number(process.env.OTP_TTL_SECONDS || 300)
+  // );
 
-  // ✅ Send verification email
-  await sendEmailVerification(email, otp);
+  // ✅ Send verification email (Disabled)
+  // await sendEmailVerification(email, otp);
 
   // ✅ Return user + info
   return {
@@ -82,10 +96,14 @@ const verifyEmailOnDB = async (email: string, otp: string) => {
 /**
  * Login a user using email/password
  */
-const loginUserFromDB = async (payload: TAuth) => {
-  const isUserExists = await UserModel.findOne({
-    email: payload?.email,
-  }).select("+password");
+const loginUserFromDB = async (payload: any) => {
+  const query = payload.email ? { email: payload.email } : { contactNo: payload.contactNo };
+  
+  if (!payload.email && !payload.contactNo) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Email or Mobile Number is required");
+  }
+
+  const isUserExists = await UserModel.findOne(query).select("+password");
 
   if (!isUserExists) {
     throw new AppError(httpStatus.NOT_FOUND, "User does not exist!");

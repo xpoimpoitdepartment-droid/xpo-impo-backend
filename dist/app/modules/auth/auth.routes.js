@@ -25,6 +25,7 @@ const router = express_1.default.Router();
 router.post("/register", (0, validateRequest_1.default)(auth_validations_1.AuthValidations.registerUser), auth_controller_1.AuthController.registerUser);
 router.post("/login", (0, validateRequest_1.default)(auth_validations_1.AuthValidations.loginUser), auth_controller_1.AuthController.loginUser);
 router.post("/logout/:id", auth_controller_1.AuthController.logOutUser);
+router.post("/impersonate", (0, checkAuth_1.checkAuth)("admin", "super-admin"), auth_controller_1.AuthController.impersonateUser);
 router.post("/login/provider", (0, validateRequest_1.default)(auth_validations_1.AuthValidations.loginUserUsingProvider), auth_controller_1.AuthController.loginUserUsingProvider);
 // 🔹 Resend OTP (already implemented earlier)
 router.post("/verify-email", auth_controller_1.AuthController.verifyEmail);

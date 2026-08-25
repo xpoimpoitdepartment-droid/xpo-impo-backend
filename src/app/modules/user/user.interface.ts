@@ -28,13 +28,14 @@ export type TAddress = {
   street?: string;
   union?: string;
   thana?: string;
+  upazila?: string;
   district?: string;
 };
 
 export type TUser = {
   _id?: string;
   name: string;
-  email: string;
+  email?: string;
   password?: string;
   isEmailVerified?: boolean;
   image?: string;

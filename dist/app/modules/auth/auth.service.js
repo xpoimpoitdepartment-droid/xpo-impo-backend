@@ -24,30 +24,46 @@ const generate_otp_1 = require("../../utils/generate.otp");
 const otp_service_1 = require("../otp/otp.service");
 const user_model_1 = require("../user/user.model");
 const registerUserOnDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const email = payload.email.toLowerCase();
+    const role = payload.role || "customer";
+    if (role !== "sr" && !payload.email) {
+        throw new handleAppError_1.default(http_status_1.default.BAD_REQUEST, "Email is required");
+    }
+    const email = payload.email ? payload.email.toLowerCase() : undefined;
     // ✅ Check if user already exists
-    const existing = yield user_model_1.UserModel.findOne({ email });
-    if (existing) {
-        throw new Error("Email already registered");
+    if (email) {
+        const existing = yield user_model_1.UserModel.findOne({ email });
+        if (existing) {
+            throw new Error("Email already registered");
+        }
+    }
+    if (role === "sr" && payload.contactNo) {
+        const existingMobile = yield user_model_1.UserModel.findOne({ contactNo: payload.contactNo });
+        if (existingMobile) {
+            throw new Error("Mobile number already registered");
+        }
     }
     // ✅ Determine role & status
     const activeRoles = ["customer", "admin", "super-admin"];
-    const role = payload.role || "customer";
     const status = activeRoles.includes(role) ? "active" : "pending";
     // ✅ Hash password
     if (!(payload === null || payload === void 0 ? void 0 : payload.password)) {
         throw new handleAppError_1.default(http_status_1.default.BAD_REQUEST, "Password is required");
     }
-    // ✅ Create user with default isEmailVerified = false
+    // ✅ Create user with default isEmailVerified = true (Disabled email verification)
     const userData = Object.assign(Object.assign({}, payload), { email,
         role,
-        status, isEmailVerified: false });
+        status, isEmailVerified: true });
     const user = yield user_model_1.UserModel.create(userData);
-    // ✅ Generate and store OTP
-    const otp = (0, generate_otp_1.generateOTP)();
-    yield (0, otp_service_1.storeOTP)(email, "email_verification", otp, Number(process.env.OTP_TTL_SECONDS || 300));
-    // ✅ Send verification email
-    yield (0, email_service_1.sendEmailVerification)(email, otp);
+    // ✅ Generate and store OTP (Disabled as per request)
+    // const otp = generateOTP();
+    // await storeOTP(
+    //   email,
+    //   "email_verification",
+    //   otp,
+    //   Number(process.env.OTP_TTL_SECONDS || 300)
+    // );
+    // ✅ Send verification email (Disabled)
+    // await sendEmailVerification(email, otp);
     // ✅ Return user + info
     return {
         user,
@@ -69,9 +85,11 @@ const verifyEmailOnDB = (email, otp) => __awaiter(void 0, void 0, void 0, functi
  * Login a user using email/password
  */
 const loginUserFromDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const isUserExists = yield user_model_1.UserModel.findOne({
-        email: payload === null || payload === void 0 ? void 0 : payload.email,
-    }).select("+password");
+    const query = payload.email ? { email: payload.email } : { contactNo: payload.contactNo };
+    if (!payload.email && !payload.contactNo) {
+        throw new handleAppError_1.default(http_status_1.default.BAD_REQUEST, "Email or Mobile Number is required");
+    }
+    const isUserExists = yield user_model_1.UserModel.findOne(query).select("+password");
     if (!isUserExists) {
         throw new handleAppError_1.default(http_status_1.default.NOT_FOUND, "User does not exist!");
     }

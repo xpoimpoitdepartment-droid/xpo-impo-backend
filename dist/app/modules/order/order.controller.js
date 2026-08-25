@@ -153,6 +153,16 @@ const updateOrderStatus = (0, catchAsync_1.default)((req, res) => __awaiter(void
         data: result,
     });
 }));
+const getCustomerOrderStats = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const phone = req.params.phone;
+    const result = yield order_service_1.orderServices.getCustomerOrderStatsFromDB(phone);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "Customer order stats retrieved successfully!",
+        data: result,
+    });
+}));
 exports.orderControllers = {
     getAllOrder,
     getOrderStatusCounts,
@@ -163,4 +173,5 @@ exports.orderControllers = {
     updateOrder,
     getOrderSummary,
     getMyOrders,
+    getCustomerOrderStats,
 };

@@ -18,7 +18,7 @@ const handleAppError_1 = __importDefault(require("../../errors/handleAppError"))
 const category_model_1 = require("./category.model");
 const http_status_1 = __importDefault(require("http-status"));
 const getAllCategoryFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield category_model_1.CategoryModel.find().populate('subCategories');
+    const result = yield category_model_1.CategoryModel.find().populate('subCategories').sort({ sortOrder: 1 });
     return result;
 });
 const getSingleCategoryFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {

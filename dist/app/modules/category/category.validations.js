@@ -20,6 +20,7 @@ exports.createCategoryZodSchema = zod_1.z.object({
     }),
     icon: exports.iconSchema,
     subCategories: zod_1.z.array(zod_1.z.string()).default([]).optional(),
+    sortOrder: zod_1.z.number().optional(),
 });
 exports.editIconSchema = zod_1.z.object({
     name: zod_1.z.string().optional(),
@@ -36,4 +37,5 @@ exports.updateCategoryZodSchema = zod_1.z.object({
     image: zod_1.z.string().url("Invalid image URL!").optional(),
     bannerImg: zod_1.z.string().url("Invalid banner image URL!").optional(),
     deletedImages: zod_1.z.array(zod_1.z.string()).optional(),
+    sortOrder: zod_1.z.number().optional(),
 });
