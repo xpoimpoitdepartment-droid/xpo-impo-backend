@@ -58,6 +58,11 @@ export type TVariantInfo = {
   image?: string;
 };
 
+export type TFeature = {
+  title: string;
+  description: string;
+};
+
 export type TProduct = {
   shopId?: Types.ObjectId;
   featuredImg: string;
@@ -76,4 +81,7 @@ export type TProduct = {
   relatedProducts?: Types.ObjectId[];
   attributes?: TAttribute[];
   variants?: TVariantInfo[];
+  productHighlights?: TFeature[];
+  featuresAndBenefits?: TFeature[];
+  careInstructions?: string[];
 };

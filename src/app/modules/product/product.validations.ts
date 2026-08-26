@@ -126,6 +126,9 @@ export const createProductZodSchema = z.object({
   relatedProducts: z.array(z.string()).optional(),
   attributes: z.array(attributeZodSchema).optional(),
   variants: z.array(variantInfoZodSchema).optional(),
+  productHighlights: z.array(z.object({ title: z.string(), description: z.string() })).optional(),
+  featuresAndBenefits: z.array(z.object({ title: z.string(), description: z.string() })).optional(),
+  careInstructions: z.array(z.string()).optional(),
 });
 
 export const updateProductZodSchema = z.object({
@@ -149,4 +152,7 @@ export const updateProductZodSchema = z.object({
   relatedProducts: z.array(z.string()).optional(),
   attributes: z.array(attributeZodSchema).optional(),
   variants: z.array(variantInfoZodSchema).optional(),
+  productHighlights: z.array(z.object({ title: z.string(), description: z.string() })).optional(),
+  featuresAndBenefits: z.array(z.object({ title: z.string(), description: z.string() })).optional(),
+  careInstructions: z.array(z.string()).optional(),
 });

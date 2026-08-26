@@ -114,7 +114,6 @@ const updateProduct = catchAsync(async (req, res) => {
   const updatedData: any = {
     ...req.body,
   };
-  console.log("UPDATE PAYLOAD req.body.relatedProducts:", req.body.relatedProducts);
 
   if (files["featuredImgFile"]?.[0]?.path) {
     updatedData.featuredImg = files["featuredImgFile"][0].path;

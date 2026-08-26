@@ -61,6 +61,14 @@ const commissionSchema = new Schema(
   { _id: false }
 );
 
+const featureSchema = new Schema(
+  {
+    title: { type: String },
+    description: { type: String },
+  },
+  { _id: false }
+);
+
 const descriptionSchema = new Schema<TDescription>(
   {
     name: {
@@ -218,6 +226,18 @@ const productSchema = new Schema<TProduct>(
         image: { type: String },
       },
     ],
+    productHighlights: {
+      type: [featureSchema],
+      default: [],
+    },
+    featuresAndBenefits: {
+      type: [featureSchema],
+      default: [],
+    },
+    careInstructions: {
+      type: [String],
+      default: [],
+    },
   },
   {
     timestamps: true,
