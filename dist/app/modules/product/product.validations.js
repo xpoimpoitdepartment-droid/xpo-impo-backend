@@ -115,6 +115,9 @@ exports.createProductZodSchema = zod_1.z.object({
     relatedProducts: zod_1.z.array(zod_1.z.string()).optional(),
     attributes: zod_1.z.array(attributeZodSchema).optional(),
     variants: zod_1.z.array(variantInfoZodSchema).optional(),
+    productHighlights: zod_1.z.array(zod_1.z.object({ title: zod_1.z.string(), description: zod_1.z.string() })).optional(),
+    featuresAndBenefits: zod_1.z.array(zod_1.z.object({ title: zod_1.z.string(), description: zod_1.z.string() })).optional(),
+    careInstructions: zod_1.z.array(zod_1.z.string()).optional(),
 });
 exports.updateProductZodSchema = zod_1.z.object({
     shopId: zod_1.z.string().optional(),
@@ -137,4 +140,7 @@ exports.updateProductZodSchema = zod_1.z.object({
     relatedProducts: zod_1.z.array(zod_1.z.string()).optional(),
     attributes: zod_1.z.array(attributeZodSchema).optional(),
     variants: zod_1.z.array(variantInfoZodSchema).optional(),
+    productHighlights: zod_1.z.array(zod_1.z.object({ title: zod_1.z.string(), description: zod_1.z.string() })).optional(),
+    featuresAndBenefits: zod_1.z.array(zod_1.z.object({ title: zod_1.z.string(), description: zod_1.z.string() })).optional(),
+    careInstructions: zod_1.z.array(zod_1.z.string()).optional(),
 });

@@ -49,6 +49,10 @@ const commissionSchema = new mongoose_1.Schema({
         default: false,
     },
 }, { _id: false });
+const featureSchema = new mongoose_1.Schema({
+    title: { type: String },
+    description: { type: String },
+}, { _id: false });
 const descriptionSchema = new mongoose_1.Schema({
     name: {
         type: String,
@@ -195,6 +199,18 @@ const productSchema = new mongoose_1.Schema({
             image: { type: String },
         },
     ],
+    productHighlights: {
+        type: [featureSchema],
+        default: [],
+    },
+    featuresAndBenefits: {
+        type: [featureSchema],
+        default: [],
+    },
+    careInstructions: {
+        type: [String],
+        default: [],
+    },
 }, {
     timestamps: true,
 });
