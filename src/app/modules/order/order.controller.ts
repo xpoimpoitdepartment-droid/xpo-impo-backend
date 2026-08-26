@@ -187,6 +187,40 @@ const getCustomerOrderStats = catchAsync(async (req, res) => {
   });
 });
 
+const blockCustomerPhone = catchAsync(async (req, res) => {
+  const phone = req.body.phone;
+  if (!phone) throw new Error("Phone number is required");
+  const result = await orderServices.blockCustomerPhoneInDB(phone);
+  
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Phone number blocked successfully!",
+    data: result,
+  });
+});
+
+const getBlockedPhones = catchAsync(async (req, res) => {
+  const result = await orderServices.getBlockedPhonesFromDB();
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Blocked phones retrieved successfully",
+    data: result,
+  });
+});
+
+const unblockPhone = catchAsync(async (req, res) => {
+  const phone = req.params.phone;
+  const result = await orderServices.unblockPhoneInDB(phone);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Phone number unblocked successfully",
+    data: result,
+  });
+});
+
 export const orderControllers = {
   getAllOrder,
   getOrderStatusCounts,
@@ -198,4 +232,7 @@ export const orderControllers = {
   getOrderSummary,
   getMyOrders,
   getCustomerOrderStats,
+  blockCustomerPhone,
+  getBlockedPhones,
+  unblockPhone,
 };

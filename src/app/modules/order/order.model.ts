@@ -377,3 +377,6 @@ const orderSchema = new Schema<TOrder>(
 );
 
 export const OrderModel = model<TOrder>("order", orderSchema);
+
+const blocklistSchema = new Schema({ phone: { type: String, required: true, unique: true } }, { timestamps: true });
+export const BlocklistModel = model('Blocklist', blocklistSchema);

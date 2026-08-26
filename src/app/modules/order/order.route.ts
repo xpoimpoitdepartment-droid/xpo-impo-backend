@@ -13,6 +13,10 @@ router.get("/customer-stats/:phone", orderControllers.getCustomerOrderStats);
 
 router.get("/my-order/:id", orderControllers.getMyOrders);
 
+router.post("/block-phone", orderControllers.blockCustomerPhone);
+router.get("/block-phone", orderControllers.getBlockedPhones);
+router.delete("/block-phone/:phone", orderControllers.unblockPhone);
+
 router.get("/:id", orderControllers.getSingleOrder);
 
 router.get("/commission/:id", orderControllers.getUserCommissionSummary);

@@ -6,7 +6,7 @@ import { ProductModel } from "../product/product.model";
 import { UserModel } from "../user/user.model";
 import { OrderSearchableFields } from "./order.consts";
 import { TOrder } from "./order.interface";
-import { OrderModel } from "./order.model";
+import { BlocklistModel, OrderModel } from "./order.model";
 
 type OrderStatus =
   | "pending"
@@ -839,6 +839,14 @@ const createOrderIntoDB = async (payload: TOrder) => {
     // 🔹 Fake Order Block System Check
     const customerPhone = payload.customerInfo?.phone;
     if (customerPhone && payload.userRole === "customer") {
+      const isBlacklisted = await BlocklistModel.findOne({ phone: customerPhone });
+      if (isBlacklisted) {
+        throw new AppError(
+          httpStatus.FORBIDDEN,
+          "Order blocked: This phone number is blacklisted and cannot place orders."
+        );
+      }
+
       const stats = await getCustomerOrderStatsFromDB(customerPhone);
       
       // If a customer has at least 3 cancelled orders and more cancelled than delivered, block them.
@@ -1024,7 +1032,7 @@ const getCustomerOrderStatsFromDB = async (phone: string) => {
   const result = await OrderModel.aggregate([
     {
       $match: {
-        "paymentInfo.contactNo": phone, // or whatever field the phone is
+        "customerInfo.phone": phone, 
       },
     },
     {
@@ -1048,6 +1056,20 @@ const getCustomerOrderStatsFromDB = async (phone: string) => {
   return { totalOrders: 0, deliveredOrders: 0, cancelledOrders: 0 };
 };
 
+const blockCustomerPhoneInDB = async (phone: string) => {
+  await BlocklistModel.updateOne({ phone }, { $set: { phone } }, { upsert: true });
+  return { success: true };
+};
+
+const getBlockedPhonesFromDB = async () => {
+  return await BlocklistModel.find().sort({ createdAt: -1 });
+};
+
+const unblockPhoneInDB = async (phone: string) => {
+  await BlocklistModel.deleteOne({ phone });
+  return { success: true };
+};
+
 export const orderServices = {
   getAllOrdersFromDB,
   getOrderStatusCountsFromDB,
@@ -1059,4 +1081,7 @@ export const orderServices = {
   updateOrderInDB,
   getMyOrdersFromDB,
   getCustomerOrderStatsFromDB,
+  blockCustomerPhoneInDB,
+  getBlockedPhonesFromDB,
+  unblockPhoneInDB,
 };
