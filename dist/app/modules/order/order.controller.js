@@ -163,6 +163,37 @@ const getCustomerOrderStats = (0, catchAsync_1.default)((req, res) => __awaiter(
         data: result,
     });
 }));
+const blockCustomerPhone = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const phone = req.body.phone;
+    if (!phone)
+        throw new Error("Phone number is required");
+    const result = yield order_service_1.orderServices.blockCustomerPhoneInDB(phone);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "Phone number blocked successfully!",
+        data: result,
+    });
+}));
+const getBlockedPhones = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield order_service_1.orderServices.getBlockedPhonesFromDB();
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "Blocked phones retrieved successfully",
+        data: result,
+    });
+}));
+const unblockPhone = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const phone = req.params.phone;
+    const result = yield order_service_1.orderServices.unblockPhoneInDB(phone);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "Phone number unblocked successfully",
+        data: result,
+    });
+}));
 exports.orderControllers = {
     getAllOrder,
     getOrderStatusCounts,
@@ -174,4 +205,7 @@ exports.orderControllers = {
     getOrderSummary,
     getMyOrders,
     getCustomerOrderStats,
+    blockCustomerPhone,
+    getBlockedPhones,
+    unblockPhone,
 };

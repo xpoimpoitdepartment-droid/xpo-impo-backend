@@ -14,6 +14,9 @@ router.get("/status-counts", order_controller_1.orderControllers.getOrderStatusC
 router.get("/summary", order_controller_1.orderControllers.getOrderSummary);
 router.get("/customer-stats/:phone", order_controller_1.orderControllers.getCustomerOrderStats);
 router.get("/my-order/:id", order_controller_1.orderControllers.getMyOrders);
+router.post("/block-phone", order_controller_1.orderControllers.blockCustomerPhone);
+router.get("/block-phone", order_controller_1.orderControllers.getBlockedPhones);
+router.delete("/block-phone/:phone", order_controller_1.orderControllers.unblockPhone);
 router.get("/:id", order_controller_1.orderControllers.getSingleOrder);
 router.get("/commission/:id", order_controller_1.orderControllers.getUserCommissionSummary);
 router.post("/create-order", (0, validateRequest_1.default)(order_validation_1.createOrderZodSchema), order_controller_1.orderControllers.createOrder);

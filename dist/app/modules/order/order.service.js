@@ -786,6 +786,10 @@ const createOrderIntoDB = (payload) => __awaiter(void 0, void 0, void 0, functio
         // 🔹 Fake Order Block System Check
         const customerPhone = (_a = payload.customerInfo) === null || _a === void 0 ? void 0 : _a.phone;
         if (customerPhone && payload.userRole === "customer") {
+            const isBlacklisted = yield order_model_1.BlocklistModel.findOne({ phone: customerPhone });
+            if (isBlacklisted) {
+                throw new handleAppError_1.default(http_status_1.default.FORBIDDEN, "Order blocked: This phone number is blacklisted and cannot place orders.");
+            }
             const stats = yield getCustomerOrderStatsFromDB(customerPhone);
             // If a customer has at least 3 cancelled orders and more cancelled than delivered, block them.
             if (stats.cancelledOrders >= 3 && stats.cancelledOrders > stats.deliveredOrders) {
@@ -922,7 +926,7 @@ const getCustomerOrderStatsFromDB = (phone) => __awaiter(void 0, void 0, void 0,
     const result = yield order_model_1.OrderModel.aggregate([
         {
             $match: {
-                "paymentInfo.contactNo": phone, // or whatever field the phone is
+                "customerInfo.phone": phone,
             },
         },
         {
@@ -943,6 +947,17 @@ const getCustomerOrderStatsFromDB = (phone) => __awaiter(void 0, void 0, void 0,
     }
     return { totalOrders: 0, deliveredOrders: 0, cancelledOrders: 0 };
 });
+const blockCustomerPhoneInDB = (phone) => __awaiter(void 0, void 0, void 0, function* () {
+    yield order_model_1.BlocklistModel.updateOne({ phone }, { $set: { phone } }, { upsert: true });
+    return { success: true };
+});
+const getBlockedPhonesFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
+    return yield order_model_1.BlocklistModel.find().sort({ createdAt: -1 });
+});
+const unblockPhoneInDB = (phone) => __awaiter(void 0, void 0, void 0, function* () {
+    yield order_model_1.BlocklistModel.deleteOne({ phone });
+    return { success: true };
+});
 exports.orderServices = {
     getAllOrdersFromDB,
     getOrderStatusCountsFromDB,
@@ -954,4 +969,7 @@ exports.orderServices = {
     updateOrderInDB,
     getMyOrdersFromDB,
     getCustomerOrderStatsFromDB,
+    blockCustomerPhoneInDB,
+    getBlockedPhonesFromDB,
+    unblockPhoneInDB,
 };

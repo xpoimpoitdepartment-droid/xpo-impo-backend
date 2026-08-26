@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.OrderModel = void 0;
+exports.BlocklistModel = exports.OrderModel = void 0;
 const mongoose_1 = require("mongoose");
 // Commission Schema
 const commissionSchema = new mongoose_1.Schema({
@@ -330,3 +330,5 @@ const orderSchema = new mongoose_1.Schema({
     orderNote: { type: String },
 }, { timestamps: true });
 exports.OrderModel = (0, mongoose_1.model)("order", orderSchema);
+const blocklistSchema = new mongoose_1.Schema({ phone: { type: String, required: true, unique: true } }, { timestamps: true });
+exports.BlocklistModel = (0, mongoose_1.model)('Blocklist', blocklistSchema);
