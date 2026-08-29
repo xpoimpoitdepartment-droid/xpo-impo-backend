@@ -137,7 +137,7 @@ export const updateProductZodSchema = z.object({
   gallery: z.array(z.string().url("Invalid gallery image URL!")).optional(),
   video: z.string().optional(),
   brandAndCategories: z.any(),
-  description: z.any(),
+  description: z.any().optional(),
   productType: z
     .enum(["simple", "variable"], {
       message: "Product type must be 'simple' or 'variable'",
