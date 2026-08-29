@@ -18,6 +18,7 @@ const cloudinary_config_1 = require("../../config/cloudinary.config");
 const handleAppError_1 = __importDefault(require("../../errors/handleAppError"));
 const product_const_1 = require("./product.const");
 const product_model_1 = require("./product.model");
+const category_model_1 = require("../category/category.model");
 // const createProductOnDB = async (payload: TProduct) => {
 //   const result = await ProductModel.create(payload);
 //   return result;
@@ -35,6 +36,21 @@ const createProductOnDB = (payload) => __awaiter(void 0, void 0, void 0, functio
 const getAllProductFromDB = (query) => __awaiter(void 0, void 0, void 0, function* () {
     if (query && typeof query === "object" && !query.sort) {
         query.sort = "sortOrder,-createdAt";
+    }
+    if (query.category) {
+        const categoryQuery = String(query.category);
+        // Find category by slug, name OR id
+        const foundCat = yield category_model_1.CategoryModel.findOne({
+            $or: [
+                { slug: categoryQuery },
+                { name: categoryQuery },
+            ]
+        });
+        if (foundCat) {
+            // Modify query to search in the array of ObjectIds
+            query["brandAndCategories.categories"] = foundCat._id;
+        }
+        delete query.category;
     }
     const productQuery = new QueryBuilder_1.default(product_model_1.ProductModel.find()
         .populate("brandAndCategories.brand")

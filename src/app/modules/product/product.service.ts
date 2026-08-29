@@ -4,6 +4,7 @@ import AppError from "../../errors/handleAppError";
 import { ProductSearchableFields } from "./product.const";
 import { TProduct } from "./product.interface";
 import { ProductModel } from "./product.model";
+import { CategoryModel } from "../category/category.model";
 
 // const createProductOnDB = async (payload: TProduct) => {
 //   const result = await ProductModel.create(payload);
@@ -24,6 +25,23 @@ const createProductOnDB = async (payload: TProduct) => {
 const getAllProductFromDB = async (query: Record<string, unknown>) => {
   if (query && typeof query === "object" && !query.sort) {
     query.sort = "sortOrder,-createdAt";
+  }
+  
+  if (query.category) {
+    const categoryQuery = String(query.category);
+    // Find category by slug, name OR id
+    const foundCat = await CategoryModel.findOne({
+      $or: [
+        { slug: categoryQuery },
+        { name: categoryQuery },
+      ]
+    });
+    
+    if (foundCat) {
+      // Modify query to search in the array of ObjectIds
+      query["brandAndCategories.categories"] = foundCat._id;
+    }
+    delete query.category;
   }
 
   const productQuery = new QueryBuilder(
