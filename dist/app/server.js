@@ -81,4 +81,13 @@ function gracefulShutdown() {
         }
     });
 }
-main();
+// Vercel Serverless Function Export
+if (process.env.VERCEL) {
+    mongoose_1.default.connect(config_1.default.database_url)
+        .then(() => console.log("Connected to MongoDB (Vercel)"))
+        .catch(err => console.error("MongoDB Connection Error:", err));
+}
+else {
+    main();
+}
+exports.default = app_1.default;

@@ -67,10 +67,21 @@ const deleteDashboard = (0, catchAsync_1.default)((req, res) => __awaiter(void 0
         data: result,
     });
 }));
+const getUserDashboardStats = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const result = yield dashboard_service_1.dashboardService.getUserDashboardStats((_a = req.user) === null || _a === void 0 ? void 0 : _a.email);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "User Dashboard fetched successfully",
+        data: result,
+    });
+}));
 exports.dashboardControllers = {
     createDashboard,
     getAllDashboards,
     getDashboardById,
     updateDashboard,
     deleteDashboard,
+    getUserDashboardStats,
 };

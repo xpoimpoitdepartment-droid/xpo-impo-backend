@@ -13,9 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.customerServices = void 0;
-const http_status_1 = __importDefault(require("http-status"));
 const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
-const handleAppError_1 = __importDefault(require("../../errors/handleAppError"));
 const customer_const_1 = require("./customer.const");
 const customer_model_1 = require("./customer.model");
 const customerPopulate = [
@@ -55,10 +53,7 @@ const updateCustomerOnDB = (id, payload) => __awaiter(void 0, void 0, void 0, fu
 });
 const getMyCustomerInfoFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield customer_model_1.CustomerModel.findOne({ userId: id }).populate(customerPopulate);
-    if (!result) {
-        throw new handleAppError_1.default(http_status_1.default.NOT_FOUND, "User does not exists!");
-    }
-    return result;
+    return result || null;
 });
 exports.customerServices = {
     createCustomerOnDB,

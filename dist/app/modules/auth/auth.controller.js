@@ -144,7 +144,7 @@ const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const setCookie_1 = require("../../utils/setCookie");
 const auth_service_1 = require("./auth.service");
 const registerUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     const userInfo = Object.assign(Object.assign({}, req.body), { auths: {
             provider: req.body.email ? "email" : "mobile",
             providerId: req.body.email || req.body.contactNo,
@@ -153,9 +153,10 @@ const registerUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.CREATED,
         success: true,
-        message: ((_a = result.user) === null || _a === void 0 ? void 0 : _a.status) === "pending"
+        message: ((_a = result.user) === null || _a === void 0 ? void 0 : _a.status) === "pending" &&
+            ((_b = result.user) === null || _b === void 0 ? void 0 : _b.role) === "sr"
             ? "Registration successful! Please wait for admin approval."
-            : "User has been registered successfully! OTP has been sent to your email for verification.",
+            : "User has been registered successfully. You can log in now.",
         data: result,
     });
 }));
@@ -172,7 +173,7 @@ const loginUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void
         });
     }
     // Handle pending or blocked users with friendly messages
-    if (result.status === "pending") {
+    if (result.status === "pending" && result.role === "sr") {
         return (0, sendResponse_1.default)(res, {
             success: false,
             statusCode: http_status_1.default.FORBIDDEN,
@@ -213,7 +214,7 @@ const loginUserUsingProvider = (0, catchAsync_1.default)((req, res) => __awaiter
         });
     }
     // Handle pending or blocked users with friendly messages
-    if (result.user.status === "pending") {
+    if (result.user.status === "pending" && result.user.role === "sr") {
         return (0, sendResponse_1.default)(res, {
             success: false,
             statusCode: http_status_1.default.FORBIDDEN,
@@ -238,7 +239,10 @@ const loginUserUsingProvider = (0, catchAsync_1.default)((req, res) => __awaiter
         success: true,
         statusCode: http_status_1.default.OK,
         message: "User logged in successfully!",
-        data: result === null || result === void 0 ? void 0 : result.user,
+        data: {
+            user: result === null || result === void 0 ? void 0 : result.user,
+            accessToken: result === null || result === void 0 ? void 0 : result.accessToken,
+        },
     });
 }));
 const logOutUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

@@ -24,11 +24,12 @@ const generate_otp_1 = require("../../utils/generate.otp");
 const otp_service_1 = require("../otp/otp.service");
 const user_model_1 = require("../user/user.model");
 const registerUserOnDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
     const role = payload.role || "customer";
     if (role !== "sr" && !payload.email) {
         throw new handleAppError_1.default(http_status_1.default.BAD_REQUEST, "Email is required");
     }
-    const email = payload.email ? payload.email.toLowerCase() : undefined;
+    const email = (_a = payload.email) === null || _a === void 0 ? void 0 : _a.trim().toLowerCase();
     // ✅ Check if user already exists
     if (email) {
         const existing = yield user_model_1.UserModel.findOne({ email });
@@ -37,20 +38,22 @@ const registerUserOnDB = (payload) => __awaiter(void 0, void 0, void 0, function
         }
     }
     if (role === "sr" && payload.contactNo) {
-        const existingMobile = yield user_model_1.UserModel.findOne({ contactNo: payload.contactNo });
+        const existingMobile = yield user_model_1.UserModel.findOne({
+            contactNo: payload.contactNo.trim(),
+        });
         if (existingMobile) {
             throw new Error("Mobile number already registered");
         }
     }
-    // ✅ Determine role & status
-    const activeRoles = ["customer", "admin", "super-admin"];
-    const status = activeRoles.includes(role) ? "active" : "pending";
+    // Only sales representatives need admin approval. All other roles can log in
+    // immediately after registration.
+    const status = role === "sr" ? "pending" : "active";
     // ✅ Hash password
     if (!(payload === null || payload === void 0 ? void 0 : payload.password)) {
         throw new handleAppError_1.default(http_status_1.default.BAD_REQUEST, "Password is required");
     }
     // ✅ Create user with default isEmailVerified = true (Disabled email verification)
-    const userData = Object.assign(Object.assign({}, payload), { email,
+    const userData = Object.assign(Object.assign({}, payload), { contactNo: (_b = payload.contactNo) === null || _b === void 0 ? void 0 : _b.trim(), email,
         role,
         status, isEmailVerified: true });
     const user = yield user_model_1.UserModel.create(userData);
@@ -85,7 +88,10 @@ const verifyEmailOnDB = (email, otp) => __awaiter(void 0, void 0, void 0, functi
  * Login a user using email/password
  */
 const loginUserFromDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const query = payload.email ? { email: payload.email } : { contactNo: payload.contactNo };
+    var _a;
+    const query = payload.email
+        ? { email: payload.email.trim().toLowerCase() }
+        : { contactNo: (_a = payload.contactNo) === null || _a === void 0 ? void 0 : _a.trim() };
     if (!payload.email && !payload.contactNo) {
         throw new handleAppError_1.default(http_status_1.default.BAD_REQUEST, "Email or Mobile Number is required");
     }
@@ -103,8 +109,9 @@ const loginUserFromDB = (payload) => __awaiter(void 0, void 0, void 0, function*
     if (!isPasswordMatched) {
         throw new handleAppError_1.default(http_status_1.default.UNAUTHORIZED, "Wrong Credentials!");
     }
-    // Prevent login if user is pending or blocked
-    if (isUserExists.status === "pending") {
+    // Only SR accounts remain pending until an admin approves them. This also
+    // activates older non-SR accounts that were created under the old rule.
+    if (isUserExists.status === "pending" && isUserExists.role === "sr") {
         throw new handleAppError_1.default(http_status_1.default.UNAUTHORIZED, "Your account is under review. Please wait for approval.");
     }
     if (isUserExists.status === "blocked") {
@@ -121,9 +128,8 @@ const loginUserUsingProviderFromDB = (payload) => __awaiter(void 0, void 0, void
     const isUserExists = yield user_model_1.UserModel.findOne({ email: payload === null || payload === void 0 ? void 0 : payload.email });
     if (!isUserExists) {
         // New user - create with 'sr' role for admin panel access
-        const activeRoles = ["customer", "admin", "super-admin", "sr"];
         const role = payload.role || "sr";
-        const status = activeRoles.includes(role) ? "active" : "pending";
+        const status = role === "sr" ? "pending" : "active";
         const result = yield user_model_1.UserModel.create(Object.assign(Object.assign({}, payload), { role, status }));
         const jwtPayload = {
             userId: result._id,
@@ -143,7 +149,7 @@ const loginUserUsingProviderFromDB = (payload) => __awaiter(void 0, void 0, void
         throw new handleAppError_1.default(http_status_1.default.FORBIDDEN, "This account is registered as a customer. Please use the customer portal to login.");
     }
     // Check existing user's status before allowing login
-    if (isUserExists.status === "pending") {
+    if (isUserExists.status === "pending" && isUserExists.role === "sr") {
         throw new handleAppError_1.default(http_status_1.default.UNAUTHORIZED, "Your account is under review. Please wait for approval.");
     }
     if (isUserExists.status === "blocked") {

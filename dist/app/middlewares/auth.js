@@ -20,9 +20,18 @@ const user_model_1 = require("../modules/user/user.model");
 const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
 const auth = (...requiredRoles) => {
     return (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a;
-        const token = ((_a = req.headers.cookie) === null || _a === void 0 ? void 0 : _a.split("=")[1]) || "";
+        let token = "";
+        if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+            token = req.headers.authorization.split(" ")[1];
+        }
+        else if (req.headers.cookie) {
+            const match = req.headers.cookie.match(/(?:^|;\s*)token=([^;]+)/);
+            if (match) {
+                token = match[1];
+            }
+        }
         if (!token) {
+            console.error("Auth Middleware: No token found in headers or cookie.");
             throw new handleAppError_1.default(http_status_1.default.UNAUTHORIZED, "You are not authorized !");
         }
         let decoded = {};
@@ -30,6 +39,7 @@ const auth = (...requiredRoles) => {
             decoded = jsonwebtoken_1.default.verify(token, config_1.default.jwt_access_secret);
         }
         catch (error) {
+            console.error("Auth Middleware: JWT Verification Failed -", error.message);
             throw new handleAppError_1.default(401, "Unauthorized !");
         }
         const role = decoded.role;
