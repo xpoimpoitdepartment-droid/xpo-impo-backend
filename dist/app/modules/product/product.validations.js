@@ -125,7 +125,7 @@ exports.updateProductZodSchema = zod_1.z.object({
     gallery: zod_1.z.array(zod_1.z.string().url("Invalid gallery image URL!")).optional(),
     video: zod_1.z.string().optional(),
     brandAndCategories: zod_1.z.any(),
-    description: zod_1.z.any(),
+    description: zod_1.z.any().optional(),
     productType: zod_1.z
         .enum(["simple", "variable"], {
         message: "Product type must be 'simple' or 'variable'",
