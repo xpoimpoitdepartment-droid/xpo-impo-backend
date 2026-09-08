@@ -68,4 +68,13 @@ async function gracefulShutdown() {
   }
 }
 
-main();
+// Vercel Serverless Function Export
+if (process.env.VERCEL) {
+  mongoose.connect(config.database_url as string)
+    .then(() => console.log("Connected to MongoDB (Vercel)"))
+    .catch(err => console.error("MongoDB Connection Error:", err));
+} else {
+  main();
+}
+
+export default app;
