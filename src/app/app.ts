@@ -15,6 +15,7 @@ const app: Application = express();
 app.use(cors({
   origin: [
     "https://milko-home-lime.vercel.app",
+    "https://milkoecomtwo.vercel.app",
     "http://localhost:3000",
     "http://localhost:3001",
     "http://localhost:3002",
