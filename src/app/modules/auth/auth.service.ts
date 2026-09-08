@@ -20,7 +20,7 @@ const registerUserOnDB = async (payload: any) => {
     throw new AppError(httpStatus.BAD_REQUEST, "Email is required");
   }
 
-  const email = payload.email ? payload.email.toLowerCase() : undefined;
+  const email = payload.email?.trim().toLowerCase();
 
   // ✅ Check if user already exists
   if (email) {
@@ -31,15 +31,17 @@ const registerUserOnDB = async (payload: any) => {
   }
 
   if (role === "sr" && payload.contactNo) {
-    const existingMobile = await UserModel.findOne({ contactNo: payload.contactNo });
+    const existingMobile = await UserModel.findOne({
+      contactNo: payload.contactNo.trim(),
+    });
     if (existingMobile) {
       throw new Error("Mobile number already registered");
     }
   }
 
-  // ✅ Determine role & status
-  const activeRoles = ["customer", "admin", "super-admin"];
-  const status = activeRoles.includes(role) ? "active" : "pending";
+  // Only sales representatives need admin approval. All other roles can log in
+  // immediately after registration.
+  const status = role === "sr" ? "pending" : "active";
 
   // ✅ Hash password
   if (!payload?.password) {
@@ -49,6 +51,7 @@ const registerUserOnDB = async (payload: any) => {
   // ✅ Create user with default isEmailVerified = true (Disabled email verification)
   const userData = {
     ...payload,
+    contactNo: payload.contactNo?.trim(),
     email,
     role,
     status,
@@ -97,7 +100,9 @@ const verifyEmailOnDB = async (email: string, otp: string) => {
  * Login a user using email/password
  */
 const loginUserFromDB = async (payload: any) => {
-  const query = payload.email ? { email: payload.email } : { contactNo: payload.contactNo };
+  const query = payload.email
+    ? { email: payload.email.trim().toLowerCase() }
+    : { contactNo: payload.contactNo?.trim() };
   
   if (!payload.email && !payload.contactNo) {
     throw new AppError(httpStatus.BAD_REQUEST, "Email or Mobile Number is required");
@@ -129,8 +134,9 @@ const loginUserFromDB = async (payload: any) => {
     throw new AppError(httpStatus.UNAUTHORIZED, "Wrong Credentials!");
   }
 
-  // Prevent login if user is pending or blocked
-  if (isUserExists.status === "pending") {
+  // Only SR accounts remain pending until an admin approves them. This also
+  // activates older non-SR accounts that were created under the old rule.
+  if (isUserExists.status === "pending" && isUserExists.role === "sr") {
     throw new AppError(
       httpStatus.UNAUTHORIZED,
       "Your account is under review. Please wait for approval."
@@ -162,9 +168,8 @@ const loginUserUsingProviderFromDB = async (payload: TExternalProviderAuth) => {
 
   if (!isUserExists) {
     // New user - create with 'sr' role for admin panel access
-    const activeRoles = ["customer", "admin", "super-admin", "sr"];
     const role = payload.role || "sr";
-    const status = activeRoles.includes(role) ? "active" : "pending";
+    const status = role === "sr" ? "pending" : "active";
 
     const result = await UserModel.create({ ...payload, role, status });
 
@@ -193,7 +198,7 @@ const loginUserUsingProviderFromDB = async (payload: TExternalProviderAuth) => {
   }
 
   // Check existing user's status before allowing login
-  if (isUserExists.status === "pending") {
+  if (isUserExists.status === "pending" && isUserExists.role === "sr") {
     throw new AppError(
       httpStatus.UNAUTHORIZED,
       "Your account is under review. Please wait for approval."

@@ -169,9 +169,10 @@ const registerUser = catchAsync(async (req, res) => {
     statusCode: httpStatus.CREATED,
     success: true,
     message:
-      (result.user as TUser)?.status === "pending"
+      (result.user as TUser)?.status === "pending" &&
+      (result.user as TUser)?.role === "sr"
         ? "Registration successful! Please wait for admin approval."
-        : "User has been registered successfully! OTP has been sent to your email for verification.",
+        : "User has been registered successfully. You can log in now.",
     data: result,
   });
 });
@@ -191,7 +192,7 @@ const loginUser = catchAsync(async (req, res) => {
   }
 
   // Handle pending or blocked users with friendly messages
-  if (result.status === "pending") {
+  if (result.status === "pending" && result.role === "sr") {
     return sendResponse(res, {
       success: false,
       statusCode: httpStatus.FORBIDDEN,
@@ -240,7 +241,7 @@ const loginUserUsingProvider = catchAsync(async (req, res) => {
   }
 
   // Handle pending or blocked users with friendly messages
-  if (result.user.status === "pending") {
+  if (result.user.status === "pending" && result.user.role === "sr") {
     return sendResponse(res, {
       success: false,
       statusCode: httpStatus.FORBIDDEN,
