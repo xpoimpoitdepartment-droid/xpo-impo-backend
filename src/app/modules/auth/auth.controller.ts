@@ -272,7 +272,10 @@ const loginUserUsingProvider = catchAsync(async (req, res) => {
       success: true,
       statusCode: httpStatus.OK,
       message: "User logged in successfully!",
-      data: result?.user,
+      data: {
+        user: result?.user,
+        accessToken: result?.accessToken,
+      },
     }
   );
 });

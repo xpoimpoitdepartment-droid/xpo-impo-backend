@@ -54,10 +54,7 @@ const getMyCustomerInfoFromDB = async (id: string) => {
   const result = await CustomerModel.findOne({ userId: id }).populate(
     customerPopulate
   );
-  if (!result) {
-    throw new AppError(httpStatus.NOT_FOUND, "User does not exists!");
-  }
-  return result;
+  return result || null;
 };
 
 export const customerServices = {

@@ -62,10 +62,21 @@ const deleteDashboard = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getUserDashboardStats = catchAsync(async (req: Request, res: Response) => {
+  const result = await dashboardService.getUserDashboardStats((req.user as any)?.email as string);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User Dashboard fetched successfully",
+    data: result,
+  });
+});
+
 export const dashboardControllers = {
   createDashboard,
   getAllDashboards,
   getDashboardById,
   updateDashboard,
   deleteDashboard,
+  getUserDashboardStats,
 };
