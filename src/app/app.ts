@@ -10,7 +10,26 @@ import globalErrorHandler from "./middlewares/globalErrorHandler";
 import notFound from "./middlewares/notFound";
 import router from "./routes";
 
+import mongoose from "mongoose";
+
 const app: Application = express();
+
+// Serverless DB Connection Middleware
+let cachedDbConnection: mongoose.Connection | null = null;
+app.use(async (req, res, next) => {
+  if (process.env.VERCEL) {
+    if (mongoose.connection.readyState === 1) {
+      return next();
+    }
+    try {
+      await mongoose.connect(config.database_url as string);
+      console.log("MongoDB connected in middleware");
+    } catch (err) {
+      console.error("MongoDB Connection Error:", err);
+    }
+  }
+  next();
+});
 
 app.use(cors({
   origin: [
