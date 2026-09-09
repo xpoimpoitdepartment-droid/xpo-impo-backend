@@ -5,6 +5,7 @@ import { BecomeSellerReviewRoutes } from "../modules/becomeSellerReview/becomeSe
 import { BrandRoutes } from "../modules/brands/brands.routes";
 import { CategoryRoutes } from "../modules/category/category.routes";
 import { CouponRoutes } from "../modules/coupons/coupons.route";
+import { CampaignRoutes } from "../modules/campaign/campaign.route";
 import { CustomerRoutes } from "../modules/customer/customer.route";
 import { DashboardRoutes } from "../modules/dashboard/dashboard.routes";
 import { FaqRoutes } from "../modules/faq/faq.route";
@@ -70,6 +71,10 @@ const moduleRoutes = [
   {
     path: "/coupon",
     route: CouponRoutes,
+  },
+  {
+    path: "/campaign",
+    route: CampaignRoutes,
   },
   {
     path: "/transaction",

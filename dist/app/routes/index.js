@@ -10,6 +10,7 @@ const becomeSellerReview_routes_1 = require("../modules/becomeSellerReview/becom
 const brands_routes_1 = require("../modules/brands/brands.routes");
 const category_routes_1 = require("../modules/category/category.routes");
 const coupons_route_1 = require("../modules/coupons/coupons.route");
+const campaign_route_1 = require("../modules/campaign/campaign.route");
 const customer_route_1 = require("../modules/customer/customer.route");
 const dashboard_routes_1 = require("../modules/dashboard/dashboard.routes");
 const faq_route_1 = require("../modules/faq/faq.route");
@@ -72,6 +73,10 @@ const moduleRoutes = [
     {
         path: "/coupon",
         route: coupons_route_1.CouponRoutes,
+    },
+    {
+        path: "/campaign",
+        route: campaign_route_1.CampaignRoutes,
     },
     {
         path: "/transaction",
