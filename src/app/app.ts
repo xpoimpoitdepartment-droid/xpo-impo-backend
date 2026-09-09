@@ -42,6 +42,7 @@ app.use(cors({
     "http://localhost:3004",
     "https://milkomart.com",
     "https://backend.milkomart.com",
+    "https://milko2-admin.vercel.app",
     "https://www.milkomart.com",
     "https://admin.milkomart.com",
     "https://www.admin.milkomart.com",
