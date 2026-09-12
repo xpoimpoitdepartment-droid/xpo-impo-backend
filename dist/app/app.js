@@ -25,6 +25,27 @@ const notFound_1 = __importDefault(require("./middlewares/notFound"));
 const routes_1 = __importDefault(require("./routes"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const app = (0, express_1.default)();
+app.use((0, cors_1.default)({
+    origin: [
+        "https://milko-home-lime.vercel.app",
+        "https://milkoecomtwo.vercel.app",
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+        "http://localhost:3003",
+        "http://localhost:3004",
+        "https://milkomart.com",
+        "https://backend.milkomart.com",
+        "https://milko2-admin.vercel.app",
+        "https://milko2-admin.vercel.app",
+        "https://www.milkomart.com",
+        "https://admin.milkomart.com",
+        "https://www.admin.milkomart.com",
+        "https://milko-admin-panel-blond.vercel.app",
+        "https://milko-home-one.vercel.app",
+    ],
+    credentials: true
+}));
 // Serverless DB Connection Middleware
 let cachedDbConnection = null;
 app.use((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -41,25 +62,6 @@ app.use((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         }
     }
     next();
-}));
-app.use((0, cors_1.default)({
-    origin: [
-        "https://milko-home-lime.vercel.app",
-        "https://milkoecomtwo.vercel.app",
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "http://localhost:3002",
-        "http://localhost:3003",
-        "http://localhost:3004",
-        "https://milkomart.com",
-        "https://backend.milkomart.com",
-        "https://www.milkomart.com",
-        "https://admin.milkomart.com",
-        "https://www.admin.milkomart.com",
-        "https://milko-admin-panel-blond.vercel.app",
-        "https://milko-home-one.vercel.app",
-    ],
-    credentials: true
 }));
 app.use((req, res, next) => {
     res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
