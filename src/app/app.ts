@@ -23,6 +23,7 @@ app.use(cors({
     "http://localhost:3001",
     "http://localhost:3002",
     "http://localhost:3003",
+    "https://rong-maya-admin.vercel.app",
     "http://localhost:3004",
     "https://milkomart.com",
     "https://backend.milkomart.com",
