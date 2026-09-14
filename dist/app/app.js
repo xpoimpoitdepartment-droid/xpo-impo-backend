@@ -27,12 +27,14 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     origin: [
+        "***",
         "https://milko-home-lime.vercel.app",
         "https://milkoecomtwo.vercel.app",
         "http://localhost:3000",
         "http://localhost:3001",
         "http://localhost:3002",
         "http://localhost:3003",
+        "https://rong-maya-admin.vercel.app",
         "http://localhost:3004",
         "https://milkomart.com",
         "https://backend.milkomart.com",
